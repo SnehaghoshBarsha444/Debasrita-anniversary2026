@@ -2,19 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 
@@ -24,10 +17,7 @@
 <body class="result-body">
 
   <main class="result-page">
-
-    <section
-      class="result-container"
-      aria-label="Love result">
+    <section class="result-container" aria-label="Love result">
 
       <video
         class="gif-result"
@@ -42,250 +32,137 @@
 
       <h1>I knew it😍!</h1>
 
-    </section>
+      <button
+        type="button"
+        class="surprise-btn"
+        id="surpriseBtn">
+        Surprise
+      </button>
 
+    </section>
   </main>
 
-
-  <!-- Same song continues in the background -->
   <audio
     id="resultBackgroundSong"
     src="Ishq Bulaava Hasee Toh Phasee 128 Kbps.mp3"
+    autoplay
     preload="auto">
   </audio>
 
-
   <script>
-    /*
-     * Same song, same starting point.
-     * The index page stores the exact playback position
-     * before navigation.
-     */
-    const SONG_START_TIME = 43.000;
+    const resultSong =
+      document.getElementById("resultBackgroundSong");
+
+    const surpriseBtn =
+      document.getElementById("surpriseBtn");
+
     const MUSIC_POSITION_KEY =
       "debasrita_music_position_43";
 
-    const resultSong =
-      document.getElementById(
-        "resultBackgroundSong"
-      );
-
+    const SONG_START_TIME = 43;
 
     function getSavedPosition() {
-
       try {
+        const saved = Number(
+          localStorage.getItem(MUSIC_POSITION_KEY)
+        );
 
-        const saved =
-          Number(
-            localStorage.getItem(
-              MUSIC_POSITION_KEY
-            )
-          );
-
-        /*
-         * Valid position must be at or after 43 seconds.
-         */
         if (
           Number.isFinite(saved) &&
           saved >= SONG_START_TIME
         ) {
-
           return saved;
-
         }
-
-      } catch (error) {
-
-        console.warn(
-          "Could not read music position:",
-          error
-        );
-
-      }
+      } catch (error) {}
 
       return SONG_START_TIME;
     }
 
-
-    function saveResultPosition() {
-
-      if (
-        resultSong &&
-        Number.isFinite(
-          resultSong.currentTime
-        )
-      ) {
-
-        try {
-
-          localStorage.setItem(
-            MUSIC_POSITION_KEY,
-            String(
-              resultSong.currentTime
-            )
-          );
-
-        } catch (error) {}
-
-      }
-
-    }
-
-
-    /*
-     * Wait for metadata, then continue from the exact
-     * position saved by the previous page.
-     */
     async function startResultSong() {
-
       try {
-
-        if (resultSong.readyState < 1) {
-
-          await new Promise((resolve) => {
-
-            if (resultSong.readyState >= 1) {
-              resolve();
-              return;
-            }
-
-            resultSong.addEventListener(
-              "loadedmetadata",
-              resolve,
-              { once: true }
-            );
-
-            setTimeout(resolve, 2000);
-
-          });
-
-        }
-
-
-        const savedPosition =
+        resultSong.currentTime =
           getSavedPosition();
 
-
-        /*
-         * Seek BEFORE play.
-         */
-        resultSong.currentTime =
-          savedPosition;
-
-
         await new Promise((resolve) => {
-
-          if (
-            Math.abs(
-              resultSong.currentTime -
-              savedPosition
-            ) < 0.05
-          ) {
-
+          const finish = () => {
+            resultSong.removeEventListener(
+              "seeked",
+              finish
+            );
             resolve();
-            return;
-
-          }
+          };
 
           resultSong.addEventListener(
             "seeked",
-            resolve,
+            finish,
             { once: true }
           );
 
-          setTimeout(resolve, 1000);
-
+          setTimeout(finish, 1000);
         });
-
 
         await resultSong.play();
 
       } catch (error) {
-
-        /*
-         * Some browsers may block audio after navigation.
-         * The result page itself still works normally.
-         */
         console.warn(
-          "Result-page background audio could not autoplay:",
+          "Result music autoplay was blocked:",
           error
         );
-
       }
-
     }
 
-
     /*
-     * If the song reaches the end, restart from 43 seconds.
+     * Keep the same song looping from 00:43.
      */
     resultSong.addEventListener(
       "ended",
       async () => {
+        resultSong.currentTime =
+          SONG_START_TIME;
 
-        try {
-
-          resultSong.pause();
-
-          resultSong.currentTime =
-            SONG_START_TIME;
-
-          await new Promise((resolve) => {
-
-            resultSong.addEventListener(
-              "seeked",
-              resolve,
-              { once: true }
-            );
-
-            setTimeout(resolve, 1000);
-
-          });
-
-          await resultSong.play();
-
-        } catch (error) {
-
-          console.warn(
-            "Could not restart result-page music:",
-            error
-          );
-
-        }
-
+        await startResultSong();
       }
     );
 
+    /*
+     * Save current playback position.
+     */
+    setInterval(() => {
+      if (!resultSong.paused) {
+        try {
+          localStorage.setItem(
+            MUSIC_POSITION_KEY,
+            String(resultSong.currentTime)
+          );
+        } catch (error) {}
+      }
+    }, 250);
 
     /*
-     * Keep saving the position while the result page
-     * is open.
+     * Stop Ishq Bulaava BEFORE opening surprise.html.
      */
-    setInterval(
-      saveResultPosition,
-      250
+    surpriseBtn.addEventListener(
+      "click",
+      () => {
+
+        resultSong.pause();
+        resultSong.currentTime = 0;
+
+        try {
+          localStorage.removeItem(
+            MUSIC_POSITION_KEY
+          );
+        } catch (error) {}
+
+        window.location.href =
+          "./surprise.html";
+      }
     );
 
-
-    window.addEventListener(
-      "pagehide",
-      saveResultPosition
-    );
-
-
-    /*
-     * Start the background music.
-     */
     startResultSong();
 
-
-    /*
-     * Result video.
-     */
     const resultVideo =
-      document.querySelector(
-        ".gif-result"
-      );
+      document.querySelector(".gif-result");
 
     resultVideo.play().catch(() => {});
   </script>
