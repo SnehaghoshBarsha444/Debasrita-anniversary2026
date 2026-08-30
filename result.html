@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <title>I knew it! ❤️</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="result-body">
 
 <main class="result-page">
   <section class="result-container">
+
     <video
       class="gif-result"
-      src="Love me.mp4"
+      src="./Love%20me.mp4"
       autoplay
       loop
       muted
@@ -25,72 +28,144 @@
 
     <h1>I knew it😍!</h1>
 
-    <button id="surpriseBtn" class="surprise-btn" type="button">
+    <button
+      id="surpriseBtn"
+      class="surprise-btn"
+      type="button">
       Surprise
     </button>
+
   </section>
 </main>
 
 <audio
   id="resultSong"
-  src="Ishq Bulaava Hasee Toh Phasee 128 Kbps.mp3"
+  src="./Ishq%20Bulaava%20Hasee%20Toh%20Phasee%20128%20Kbps.mp3"
   preload="auto">
 </audio>
 
 <script>
-const resultSong = document.getElementById("resultSong");
-const surpriseBtn = document.getElementById("surpriseBtn");
+const resultSong =
+  document.getElementById("resultSong");
+
+const surpriseBtn =
+  document.getElementById("surpriseBtn");
 
 const START = 43;
-const KEY = "debasrita-song-position";
+const KEY = "debnit-anniversary-ishq-position";
 
-async function playResultSong() {
+async function startResultMusic() {
   try {
-    const saved = Number(localStorage.getItem(KEY));
+    await new Promise(resolve => {
+      if (resultSong.readyState >= 1) {
+        resolve();
+        return;
+      }
 
-    resultSong.currentTime =
+      resultSong.addEventListener(
+        "loadedmetadata",
+        resolve,
+        { once: true }
+      );
+
+      setTimeout(resolve, 2000);
+    });
+
+    const saved =
+      Number(localStorage.getItem(KEY));
+
+    const position =
       Number.isFinite(saved) && saved >= START
         ? saved
         : START;
 
+    resultSong.currentTime = position;
+
     await new Promise(resolve => {
       const done = () => {
-        resultSong.removeEventListener("seeked", done);
+        resultSong.removeEventListener(
+          "seeked",
+          done
+        );
         resolve();
       };
 
-      resultSong.addEventListener("seeked", done, { once: true });
+      resultSong.addEventListener(
+        "seeked",
+        done,
+        { once: true }
+      );
+
       setTimeout(done, 1000);
     });
 
     await resultSong.play();
-  } catch (e) {
-    console.warn("Result music could not autoplay:", e);
+
+  } catch (error) {
+    console.warn(
+      "Result-page music autoplay blocked:",
+      error
+    );
   }
 }
 
+/* Continue saving the same position. */
 setInterval(() => {
-  if (!resultSong.paused && Number.isFinite(resultSong.currentTime)) {
-    localStorage.setItem(KEY, String(resultSong.currentTime));
+  if (
+    !resultSong.paused &&
+    Number.isFinite(resultSong.currentTime)
+  ) {
+    localStorage.setItem(
+      KEY,
+      String(resultSong.currentTime)
+    );
   }
 }, 200);
 
-resultSong.addEventListener("ended", async () => {
-  resultSong.currentTime = START;
-  await playResultSong();
-});
+/* Loop back to 00:43 when the song ends. */
+resultSong.addEventListener(
+  "ended",
+  async () => {
+    resultSong.currentTime = START;
+    await startResultMusic();
+  }
+);
 
-surpriseBtn.addEventListener("click", () => {
-  resultSong.pause();
-  resultSong.currentTime = 0;
-  localStorage.removeItem(KEY);
+window.addEventListener(
+  "pagehide",
+  () => {
+    if (Number.isFinite(resultSong.currentTime)) {
+      localStorage.setItem(
+        KEY,
+        String(resultSong.currentTime)
+      );
+    }
+  }
+);
 
-  window.location.href = "./surprise.html";
-});
+/*
+ * Surprise stops Ishq Bulaava completely.
+ */
+surpriseBtn.addEventListener(
+  "click",
+  () => {
 
-playResultSong();
+    resultSong.pause();
+    resultSong.currentTime = 0;
 
-document.querySelector(".gif-result").play().catch(() => {});
+    localStorage.removeItem(KEY);
+
+    window.location.href =
+      "./surprise.html";
+  }
+);
+
+startResultMusic();
+
+document
+  .querySelector(".gif-result")
+  .play()
+  .catch(() => {});
 </script>
 
 </body>

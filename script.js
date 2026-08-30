@@ -9,36 +9,34 @@ const noBtn = document.querySelector(".no-btn");
 const loader = document.getElementById("heartLoader");
 
 const START = 43;
-const POSITION_KEY = "debasrita-song-position";
+const POSITION_KEY = "debnit-anniversary-ishq-position";
 
 let yesClicked = false;
 let moving = false;
 let lastMove = 0;
 
-async function startSongAt43() {
+async function seekAndPlay(audio, time) {
   try {
     await new Promise(resolve => {
-      if (song.readyState >= 1) return resolve();
-
-      song.addEventListener("loadedmetadata", resolve, { once: true });
+      if (audio.readyState >= 1) return resolve();
+      audio.addEventListener("loadedmetadata", resolve, { once: true });
       setTimeout(resolve, 2000);
     });
 
-    song.currentTime = START;
+    audio.currentTime = Math.max(START, Number(time) || START);
 
     await new Promise(resolve => {
       const done = () => {
-        song.removeEventListener("seeked", done);
+        audio.removeEventListener("seeked", done);
         resolve();
       };
-
-      song.addEventListener("seeked", done, { once: true });
+      audio.addEventListener("seeked", done, { once: true });
       setTimeout(done, 1200);
     });
 
-    await song.play();
-  } catch (e) {
-    console.warn("Music could not start:", e);
+    await audio.play();
+  } catch (error) {
+    console.warn("Music playback blocked/unavailable:", error);
   }
 }
 
@@ -46,7 +44,8 @@ playBtn.addEventListener("click", () => {
   if (playBtn.disabled) return;
 
   playBtn.disabled = true;
-  startSongAt43();
+
+  seekAndPlay(song, START);
 
   intro.classList.add("hidden");
   mainPage.classList.add("visible");
@@ -57,17 +56,18 @@ playBtn.addEventListener("click", () => {
   }, 550);
 });
 
-/* Save playback position for result.html */
+/* Save the exact playback position for result.html. */
 setInterval(() => {
-  if (!song.paused && Number.isFinite(song.currentTime)) {
+  if (song && !song.paused && Number.isFinite(song.currentTime)) {
     localStorage.setItem(POSITION_KEY, String(song.currentTime));
   }
 }, 200);
 
 song.addEventListener("ended", async () => {
   song.currentTime = START;
-  await startSongAt43();
+  await seekAndPlay(song, START);
 });
+
 
 /* =========================
    NO BUTTON
@@ -96,29 +96,46 @@ function moveNo(event) {
   if (yesClicked || moving) return;
 
   const now = Date.now();
-  if (now - lastMove < 180) return;
-  lastMove = now;
 
+  if (now - lastMove < 180) return;
+
+  lastMove = now;
   moving = true;
 
   const v = viewport();
   const r = noBtn.getBoundingClientRect();
   const yes = yesBtn.getBoundingClientRect();
 
-  const padding = Math.max(10, Math.min(20, v.width * .035));
+  const padding = Math.max(
+    10,
+    Math.min(20, v.width * 0.035)
+  );
 
   const minX = padding;
-  const maxX = Math.max(minX, v.width - r.width - padding);
+  const maxX = Math.max(
+    minX,
+    v.width - r.width - padding
+  );
 
   const minY = padding;
-  const maxY = Math.max(minY, v.height - r.height - padding);
+  const maxY = Math.max(
+    minY,
+    v.height - r.height - padding
+  );
 
   let x = minX;
   let y = minY;
 
   for (let i = 0; i < 100; i++) {
-    const testX = minX + Math.random() * Math.max(1, maxX - minX);
-    const testY = minY + Math.random() * Math.max(1, maxY - minY);
+    const testX =
+      minX +
+      Math.random() *
+      Math.max(1, maxX - minX);
+
+    const testY =
+      minY +
+      Math.random() *
+      Math.max(1, maxY - minY);
 
     const gap = 28;
 
@@ -134,7 +151,6 @@ function moveNo(event) {
     if (!collision) break;
   }
 
-  /* Absolute safety clamp. */
   x = Math.max(minX, Math.min(x, maxX));
   y = Math.max(minY, Math.min(y, maxY));
 
@@ -151,31 +167,46 @@ function moveNo(event) {
   }, 220);
 }
 
-/* Desktop */
-noBtn.addEventListener("pointerenter", e => {
-  if (e.pointerType === "mouse") moveNo(e);
+noBtn.addEventListener("pointerenter", event => {
+  if (event.pointerType === "mouse") moveNo(event);
 });
 
-/* Mobile */
-noBtn.addEventListener("pointerdown", moveNo, { passive: false });
-noBtn.addEventListener("touchstart", moveNo, { passive: false });
+noBtn.addEventListener(
+  "pointerdown",
+  moveNo,
+  { passive: false }
+);
 
-/* No NEVER navigates */
-noBtn.addEventListener("click", e => {
-  e.preventDefault();
-  e.stopPropagation();
-  moveNo(e);
+noBtn.addEventListener(
+  "touchstart",
+  moveNo,
+  { passive: false }
+);
+
+noBtn.addEventListener("click", event => {
+  event.preventDefault();
+  event.stopPropagation();
+  moveNo(event);
 });
+
 
 /* =========================
-   YES
+   YES ONLY -> RESULT
 ========================= */
 
 yesBtn.addEventListener("click", () => {
   if (yesClicked) return;
 
   yesClicked = true;
+
   noBtn.style.pointerEvents = "none";
+
+  if (song && Number.isFinite(song.currentTime)) {
+    localStorage.setItem(
+      POSITION_KEY,
+      String(song.currentTime)
+    );
+  }
 
   question.classList.add("hide");
   loader.classList.add("show");
@@ -195,6 +226,7 @@ window.addEventListener("resize", () => {
   noBtn.style.bottom = "";
   noBtn.style.margin = "";
   noBtn.style.transform = "";
+
   moving = false;
 });
 
