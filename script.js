@@ -1,28 +1,12 @@
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
 const musicIntro = document.getElementById("musicIntro");
 const playSongBtn = document.getElementById("playSongBtn");
 const mainPage = document.getElementById("mainPage");
 const backgroundSong = document.getElementById("backgroundSong");
 
-const questionContainer =
-  document.querySelector(".question-container");
-
-const yesBtn =
-  document.querySelector(".js-yes-btn");
-
-const noBtn =
-  document.querySelector(".js-no-btn");
-
-const heartLoader =
-  document.querySelector(".cssload-main");
-
-
-/* =========================================================
-   SETTINGS
-========================================================= */
+const questionContainer = document.querySelector(".question-container");
+const yesBtn = document.querySelector(".js-yes-btn");
+const noBtn = document.querySelector(".js-no-btn");
+const heartLoader = document.querySelector(".cssload-main");
 
 const SONG_START_TIME = 43.000;
 
@@ -33,29 +17,15 @@ let yesClicked = false;
 
 /* =========================================================
    SONG
-   Start exactly from 00:00:43.000
 ========================================================= */
 
 function seekTo43() {
   return new Promise((resolve) => {
-
-    if (!backgroundSong) {
+    if (!backgroundSong || backgroundSong.readyState < 1) {
       resolve();
       return;
     }
 
-    const finish = () => {
-      cleanup();
-      resolve();
-    };
-
-    const cleanup = () => {
-      backgroundSong.removeEventListener("seeked", finish);
-    };
-
-    /*
-     * If already at 43 seconds, no need to seek again.
-     */
     if (
       Math.abs(
         backgroundSong.currentTime - SONG_START_TIME
@@ -65,35 +35,47 @@ function seekTo43() {
       return;
     }
 
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+
+      done = true;
+
+      backgroundSong.removeEventListener(
+        "seeked",
+        finish
+      );
+
+      resolve();
+    };
+
     backgroundSong.addEventListener(
       "seeked",
       finish,
       { once: true }
     );
 
-    backgroundSong.currentTime = SONG_START_TIME;
+    try {
+      backgroundSong.currentTime =
+        SONG_START_TIME;
+    } catch (error) {
+      console.warn(
+        "Audio seek failed:",
+        error
+      );
 
-    /*
-     * Safety fallback.
-     * Some browsers can fail to emit seeked in unusual
-     * situations. Never block the website because of audio.
-     */
-    setTimeout(() => {
-      cleanup();
-      resolve();
-    }, 1500);
+      finish();
+    }
+
+    setTimeout(finish, 1500);
   });
 }
 
 
 async function startSong() {
-
   try {
 
-    /*
-     * Wait only for metadata.
-     * Do NOT let audio prevent the page from working.
-     */
     if (backgroundSong.readyState < 1) {
 
       await new Promise((resolve) => {
@@ -114,20 +96,16 @@ async function startSong() {
     }
 
     /*
-     * Seek to exactly 43 seconds BEFORE play.
+     * Seek BEFORE play.
      */
     await seekTo43();
 
-    /*
-     * User has explicitly clicked Play,
-     * so browser autoplay restrictions are satisfied.
-     */
     await backgroundSong.play();
 
   } catch (error) {
 
     console.warn(
-      "Audio could not start:",
+      "Audio playback failed:",
       error
     );
 
@@ -135,15 +113,19 @@ async function startSong() {
 }
 
 
-/* =========================================================
-   LOOP FROM 00:43
-========================================================= */
-
+/*
+ * Restart from 00:43 after the song ends.
+ */
 backgroundSong.addEventListener(
   "ended",
   async () => {
 
     try {
+
+      backgroundSong.pause();
+
+      backgroundSong.currentTime =
+        SONG_START_TIME;
 
       await seekTo43();
 
@@ -152,39 +134,40 @@ backgroundSong.addEventListener(
     } catch (error) {
 
       console.warn(
-        "Audio loop could not restart:",
+        "Audio restart failed:",
         error
       );
 
     }
+
   }
 );
 
 
 /* =========================================================
-   PLAY THE SONG
+   PLAY SONG
 ========================================================= */
 
 playSongBtn.addEventListener(
   "click",
-  async () => {
+  () => {
 
     if (playSongBtn.disabled) return;
 
     playSongBtn.disabled = true;
 
     /*
-     * Start the audio.
-     * Audio failure must NEVER stop the page transition.
+     * Audio cannot block the UI.
      */
     startSong();
 
-    /*
-     * Immediately reveal the main page.
-     */
-    musicIntro.classList.add("intro-hidden");
+    musicIntro.classList.add(
+      "intro-hidden"
+    );
 
-    mainPage.classList.add("main-visible");
+    mainPage.classList.add(
+      "main-visible"
+    );
 
     mainPage.setAttribute(
       "aria-hidden",
@@ -192,7 +175,10 @@ playSongBtn.addEventListener(
     );
 
     setTimeout(() => {
-      musicIntro.style.display = "none";
+
+      musicIntro.style.display =
+        "none";
+
     }, 650);
 
   }
@@ -200,45 +186,61 @@ playSongBtn.addEventListener(
 
 
 /* =========================================================
-   VIEWPORT
-   Use the actual CSS viewport.
+   GET REAL VISIBLE VIEWPORT
 ========================================================= */
 
-function getViewportSize() {
+function getViewport() {
 
-  const width =
-    document.documentElement.clientWidth ||
-    window.innerWidth;
+  if (window.visualViewport) {
 
-  const height =
-    document.documentElement.clientHeight ||
-    window.innerHeight;
+    return {
+
+      width:
+        window.visualViewport.width,
+
+      height:
+        window.visualViewport.height
+
+    };
+
+  }
 
   return {
-    width,
-    height
+
+    width:
+      document.documentElement.clientWidth ||
+      window.innerWidth,
+
+    height:
+      document.documentElement.clientHeight ||
+      window.innerHeight
+
   };
+
 }
 
 
 /* =========================================================
    MOVE NO BUTTON
-   IMPORTANT:
-   The button is positioned relative to the viewport.
-   It is NEVER allowed outside the frame.
 ========================================================= */
 
 function moveNoButton(event) {
 
   if (event) {
+
     event.preventDefault();
     event.stopPropagation();
+
+  }
+
+  if (yesClicked || noMoving) {
+    return;
   }
 
   const now = Date.now();
 
   /*
-   * Ignore duplicate pointer/touch/click events.
+   * A phone touch can generate multiple events.
    */
   if (now - lastNoMove < 180) {
     return;
@@ -246,101 +248,81 @@ function moveNoButton(event) {
 
   lastNoMove = now;
 
-  if (noMoving || yesClicked) {
-    return;
-  }
-
   noMoving = true;
 
 
   /* -------------------------------------------------------
-     Get actual button dimensions
+     Current dimensions
   ------------------------------------------------------- */
 
-  const rect =
+  const noRect =
     noBtn.getBoundingClientRect();
-
-  const buttonWidth =
-    rect.width;
-
-  const buttonHeight =
-    rect.height;
-
-
-  /* -------------------------------------------------------
-     Get actual viewport
-  ------------------------------------------------------- */
-
-  const viewport =
-    getViewportSize();
-
-  const screenWidth =
-    viewport.width;
-
-  const screenHeight =
-    viewport.height;
-
-
-  /* -------------------------------------------------------
-     Safe padding
-  ------------------------------------------------------- */
-
-  const padding =
-    Math.max(
-      12,
-      Math.min(
-        24,
-        screenWidth * 0.035
-      )
-    );
-
-
-  /*
-   * HARD boundaries.
-   *
-   * The button's complete rectangle must remain
-   * inside these coordinates.
-   */
-  const minX =
-    padding;
-
-  const maxX =
-    Math.max(
-      minX,
-      screenWidth -
-      buttonWidth -
-      padding
-    );
-
-
-  const minY =
-    padding;
-
-  const maxY =
-    Math.max(
-      minY,
-      screenHeight -
-      buttonHeight -
-      padding
-    );
-
-
-  /* -------------------------------------------------------
-     YES button bounds
-  ------------------------------------------------------- */
 
   const yesRect =
     yesBtn.getBoundingClientRect();
 
 
-  let x = minX;
-  let y = minY;
+  const buttonWidth =
+    noRect.width;
 
-  let foundPosition = false;
+  const buttonHeight =
+    noRect.height;
 
 
   /* -------------------------------------------------------
-     Find random position
+     Viewport
+  ------------------------------------------------------- */
+
+  const viewport =
+    getViewport();
+
+
+  /*
+   * Safe edge distance.
+   */
+  const edge =
+    Math.max(
+      12,
+      Math.min(
+        24,
+        viewport.width * 0.04
+      )
+    );
+
+
+  /*
+   * These are the ONLY legal coordinates.
+   */
+  const minX =
+    edge;
+
+  const maxX =
+    Math.max(
+      minX,
+      viewport.width -
+      buttonWidth -
+      edge
+    );
+
+
+  const minY =
+    edge;
+
+  const maxY =
+    Math.max(
+      minY,
+      viewport.height -
+      buttonHeight -
+      edge
+    );
+
+
+  let x = minX;
+  let y = minY;
+
+
+  /* -------------------------------------------------------
+     Find a position away from YES
   ------------------------------------------------------- */
 
   for (
@@ -349,7 +331,7 @@ function moveNoButton(event) {
     attempt++
   ) {
 
-    x =
+    const candidateX =
       minX +
       Math.random() *
       Math.max(
@@ -358,7 +340,7 @@ function moveNoButton(event) {
       );
 
 
-    y =
+    const candidateY =
       minY +
       Math.random() *
       Math.max(
@@ -367,65 +349,53 @@ function moveNoButton(event) {
       );
 
 
-    const noRight =
-      x + buttonWidth;
-
-    const noBottom =
-      y + buttonHeight;
+    const candidateRight =
+      candidateX +
+      buttonWidth;
 
 
-    /*
-     * Keep No away from Yes.
-     */
-    const gap = 35;
+    const candidateBottom =
+      candidateY +
+      buttonHeight;
+
+
+    const gap = 30;
 
 
     const overlapsYes =
 
-      x <
+      candidateX <
         yesRect.right + gap
 
       &&
 
-      noRight >
+      candidateRight >
         yesRect.left - gap
 
       &&
 
-      y <
+      candidateY <
         yesRect.bottom + gap
 
       &&
 
-      noBottom >
+      candidateBottom >
         yesRect.top - gap;
 
 
+    x = candidateX;
+    y = candidateY;
+
+
     if (!overlapsYes) {
-
-      foundPosition = true;
-
       break;
-
     }
 
   }
 
 
-  /*
-   * If no random position was found,
-   * still use a valid position.
-   */
-  if (!foundPosition) {
-
-    x = minX;
-    y = minY;
-
-  }
-
-
   /* -------------------------------------------------------
-     FINAL ABSOLUTE CLAMP
+     HARD FINAL CLAMP
   ------------------------------------------------------- */
 
   x =
@@ -449,7 +419,7 @@ function moveNoButton(event) {
 
 
   /* -------------------------------------------------------
-     Move button
+     FIXED VIEWPORT POSITION
   ------------------------------------------------------- */
 
   noBtn.style.position =
@@ -474,11 +444,10 @@ function moveNoButton(event) {
     "scale(1.05)";
 
 
-  /*
-   * Release movement lock.
-   */
   setTimeout(() => {
+
     noMoving = false;
+
   }, 220);
 
 }
@@ -488,9 +457,6 @@ function moveNoButton(event) {
    DESKTOP
 ========================================================= */
 
-/*
- * Move BEFORE the mouse can click No.
- */
 noBtn.addEventListener(
   "pointerenter",
   (event) => {
@@ -508,32 +474,30 @@ noBtn.addEventListener(
 
 
 /* =========================================================
-   MOBILE
+   MOBILE + TABLET
 ========================================================= */
 
-/*
- * On touch, move immediately.
- */
 noBtn.addEventListener(
   "pointerdown",
   moveNoButton,
-  { passive: false }
+  {
+    passive: false
+  }
 );
 
 
-/*
- * Compatibility fallback.
- */
 noBtn.addEventListener(
   "touchstart",
   moveNoButton,
-  { passive: false }
+  {
+    passive: false
+  }
 );
 
 
 /*
- * If click somehow reaches No,
- * move it instead of doing anything.
+ * No NEVER redirects.
+ * Clicking it only moves it.
  */
 noBtn.addEventListener(
   "click",
@@ -543,6 +507,51 @@ noBtn.addEventListener(
     event.stopPropagation();
 
     moveNoButton(event);
+
+  }
+);
+
+
+/* =========================================================
+   YES
+   ONLY YES OPENS RESULT.HTML
+========================================================= */
+
+yesBtn.addEventListener(
+  "click",
+  () => {
+
+    if (yesClicked) return;
+
+    yesClicked = true;
+
+
+    /*
+     * No can no longer move.
+     */
+    noBtn.style.pointerEvents =
+      "none";
+
+
+    questionContainer.classList.add(
+      "question-hidden"
+    );
+
+
+    heartLoader.classList.add(
+      "show"
+    );
+
+
+    /*
+     * ONLY this action navigates.
+     */
+    setTimeout(() => {
+
+      window.location.href =
+        "./result.html";
+
+    }, 900);
 
   }
 );
@@ -575,60 +584,24 @@ window.addEventListener(
 );
 
 
-/* =========================================================
-   YES
-========================================================= */
+if (window.visualViewport) {
 
-yesBtn.addEventListener(
-  "click",
-  () => {
+  window.visualViewport.addEventListener(
+    "resize",
+    resetNoButton
+  );
 
-    if (yesClicked) return;
-
-    yesClicked = true;
-
-    /*
-     * Stop No from moving.
-     */
-    noBtn.style.pointerEvents = "none";
-
-    /*
-     * Hide question.
-     */
-    questionContainer.classList.add(
-      "question-hidden"
-    );
-
-    /*
-     * Show heart loader.
-     */
-    heartLoader.classList.add("show");
-
-    /*
-     * Go to next page.
-     */
-    setTimeout(() => {
-
-      window.location.assign(
-        "result.html"
-      );
-
-    }, 900);
-
-  }
-);
+}
 
 
 /* =========================================================
-   VIDEO AUTOPLAY
+   VIDEO
 ========================================================= */
 
 document
   .querySelectorAll("video")
   .forEach((video) => {
 
-    video.play().catch(() => {
-      // Browser may wait for interaction.
-    });
+    video.play().catch(() => {});
 
   });

@@ -13,7 +13,7 @@
 html,
 body {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -24,9 +24,9 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* =========================================================
+/* =========================
    MUSIC INTRO
-========================================================= */
+========================= */
 
 .music-intro {
   position: fixed;
@@ -38,7 +38,7 @@ body {
   justify-content: center;
 
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
 
   background: #ffffff;
 
@@ -63,21 +63,18 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .music-note {
-  color: #ff54a4;
+  color: var(--pink);
   font-size: clamp(4rem, 18vw, 7rem);
   line-height: 1;
   margin-bottom: 1rem;
-
   animation: musicFloat 1.8s ease-in-out infinite;
 }
 
 @keyframes musicFloat {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0) rotate(-5deg);
   }
 
@@ -90,24 +87,22 @@ body {
   color: #222;
   font-size: clamp(2rem, 8vw, 3rem);
   line-height: 1.15;
-  font-weight: 700;
 }
 
 .music-intro p {
   color: #777;
   font-size: clamp(0.95rem, 4vw, 1.1rem);
-  margin-top: 0.7rem;
-  margin-bottom: 1.6rem;
+  margin: 0.7rem 0 1.6rem;
 }
 
 .play-song-btn {
-  border: none;
+  border: 0;
   border-radius: 50px;
 
   min-width: 170px;
   padding: 14px 25px;
 
-  background: #ff54a4;
+  background: var(--pink);
   color: #ffffff;
 
   font-family: "Quicksand", sans-serif;
@@ -115,37 +110,34 @@ body {
   font-weight: 600;
 
   cursor: pointer;
+  touch-action: manipulation;
 
-  box-shadow:
-    0 5px 20px rgba(255, 84, 164, 0.35);
+  box-shadow: 0 5px 20px rgba(255, 84, 164, 0.35);
 
   transition:
     transform 0.25s ease,
     background 0.25s ease,
     box-shadow 0.25s ease;
-
-  touch-action: manipulation;
 }
 
 .play-song-btn:hover {
-  background: #ffa4b1;
+  background: var(--pink-hover);
   transform: scale(1.06);
-  box-shadow:
-    0 8px 25px rgba(255, 84, 164, 0.45);
 }
 
 .play-song-btn:active {
   transform: scale(0.97);
 }
 
-/* =========================================================
+/* =========================
    MAIN PAGE
-========================================================= */
+========================= */
 
 .page-shell {
-  width: 100%;
-  min-height: 100dvh;
   position: relative;
+
+  width: 100%;
+  height: 100dvh;
 
   display: flex;
   align-items: center;
@@ -170,9 +162,11 @@ body {
 }
 
 .question-container {
-  position: fixed;
+  position: absolute;
   left: 50%;
   top: 50%;
+
+  width: min(92vw, 620px);
 
   transform: translate(-50%, -50%);
 
@@ -187,22 +181,21 @@ body {
   pointer-events: none;
 }
 
-/* =========================================================
-   MAIN VIDEO
-========================================================= */
+/* =========================
+   VIDEO
+========================= */
 
 .local-gif {
   display: block;
 
-  width: min(78vw, 300px);
-  max-height: 45dvh;
+  width: min(72vw, 300px);
+  max-width: 100%;
+  max-height: 43dvh;
 
   height: auto;
   object-fit: contain;
 
-  margin:
-    0 auto
-    clamp(1.3rem, 5vw, 2.5rem);
+  margin: 0 auto clamp(14px, 4vw, 25px);
 
   border-radius: 10px;
 
@@ -210,9 +203,9 @@ body {
   user-select: none;
 }
 
-/* =========================================================
+/* =========================
    QUESTION
-========================================================= */
+========================= */
 
 .question {
   color: #222;
@@ -222,16 +215,13 @@ body {
 
   font-weight: 700;
 
-  margin:
-    0 0
-    clamp(1rem, 4vw, 1.5rem);
-
+  margin: 0 0 clamp(14px, 4vw, 22px);
   padding: 0 8px;
 }
 
-/* =========================================================
+/* =========================
    BUTTONS
-========================================================= */
+========================= */
 
 .button-container {
   position: relative;
@@ -240,81 +230,66 @@ body {
   min-height: 58px;
 
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
-  gap: clamp(0.8rem, 5vw, 1.5rem);
+  gap: clamp(12px, 5vw, 24px);
 }
 
 .btn {
-  border: none;
+  border: 0;
   border-radius: 50px;
 
   min-width: 90px;
-
   padding: 13px 25px;
 
   background: var(--pink);
   color: #ffffff;
 
   font-family: "Quicksand", sans-serif;
-
   font-size: clamp(16px, 4vw, 18px);
   font-weight: 600;
 
   line-height: 1;
 
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 
-  box-shadow:
-    0 4px 15px var(--shadow);
-
-  transform: scale(1.05);
+  box-shadow: 0 4px 15px var(--shadow);
 
   transition:
     background-color 0.2s ease,
     transform 0.2s ease,
     left 0.2s ease,
     top 0.2s ease;
-
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 .btn:hover {
   background: var(--pink-hover);
   transform: scale(1.1);
-
-  box-shadow:
-    0 6px 20px rgba(255, 107, 129, 0.7);
-}
-
-.btn:focus-visible {
-  outline: 3px solid rgba(255, 84, 164, 0.35);
-  outline-offset: 4px;
 }
 
 .yes-btn {
   position: relative;
-  z-index: 5;
+  z-index: 20;
 }
 
 .no-btn {
   position: relative;
-  z-index: 10;
+  z-index: 30;
 }
 
-/* =========================================================
+/* =========================
    HEART LOADER
-========================================================= */
+========================= */
 
 .cssload-main {
   display: none;
 
   position: fixed;
   inset: 0;
-
   z-index: 100;
 
   align-items: center;
@@ -329,7 +304,6 @@ body {
 
 .cssload-heart {
   position: absolute;
-
   width: 62px;
   height: 62px;
 
@@ -361,7 +335,6 @@ body {
 
 .cssload-heartL {
   transform: translate(-28px, -27px);
-
   animation:
     cssload-heartL
     1.1s
@@ -371,7 +344,6 @@ body {
 
 .cssload-heartR {
   transform: translate(28px, -27px);
-
   animation:
     cssload-heartR
     1.1s
@@ -381,7 +353,6 @@ body {
 
 .cssload-square {
   transform: rotate(-45deg);
-
   animation:
     cssload-square
     1.1s
@@ -391,16 +362,13 @@ body {
 
 .cssload-shadow {
   position: absolute;
-
   top: calc(50% + 85px);
 
   width: 62px;
   height: 15px;
 
   background: #d7d7d7;
-
   border: 1px solid #d7d7d7;
-
   border-radius: 50%;
 
   animation:
@@ -411,81 +379,130 @@ body {
 }
 
 @keyframes cssload-heart {
-  50% {
-    transform: rotate(180deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes cssload-heartL {
   60% {
-    transform:
-      scale(0.4)
-      translate(-28px, -27px);
+    transform: scale(0.4) translate(-28px, -27px);
   }
 }
 
 @keyframes cssload-heartR {
   40% {
-    transform:
-      scale(0.4)
-      translate(28px, -27px);
+    transform: scale(0.4) translate(28px, -27px);
   }
 }
 
 @keyframes cssload-square {
   50% {
     border-radius: 100%;
-    transform:
-      scale(0.5)
-      rotate(-45deg);
+    transform: scale(0.5) rotate(-45deg);
   }
 
   100% {
-    transform:
-      scale(1)
-      rotate(-45deg);
+    transform: scale(1) rotate(-45deg);
   }
 }
 
 @keyframes cssload-shadow {
-  50% {
-    transform: scale(0.5);
-  }
+  50% { transform: scale(0.5); }
 }
 
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
+/* =========================
+   RESULT PAGE
+========================= */
+
+.result-body {
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.result-page {
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    max(14px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(14px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+}
+
+.result-container {
+  width: min(92vw, 620px);
+  max-height: calc(100dvh - 28px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.gif-result {
+  display: block;
+
+  width: min(86vw, 420px);
+  max-width: 100%;
+  max-height: 62dvh;
+
+  height: auto;
+  object-fit: contain;
+
+  margin: 0 auto 20px;
+
+  border-radius: 10px;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+.result-container h1 {
+  width: 100%;
+
+  color: #ff54a4;
+
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  line-height: 1.15;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 600px) {
 
-  .music-intro-content {
-    width: 90vw;
-  }
-
-  .music-note {
-    font-size: clamp(4rem, 20vw, 6rem);
-  }
-
   .question-container {
-    width: min(92vw, 500px);
+    width: 92vw;
   }
 
   .local-gif {
-    width: min(72vw, 270px);
-    max-height: 40dvh;
+    width: min(70vw, 270px);
+    max-height: 38dvh;
+    margin-bottom: 14px;
   }
 
   .question {
-    font-size: clamp(1.85rem, 9vw, 2.6rem);
+    font-size: clamp(1.8rem, 9vw, 2.6rem);
+    margin-bottom: 14px;
   }
 
   .button-container {
-    min-height: 54px;
+    min-height: 52px;
     gap: 12px;
   }
 
@@ -494,21 +511,35 @@ body {
     padding: 12px 20px;
     font-size: 16px;
   }
+
+  .result-page {
+    padding: 12px;
+  }
+
+  .result-container {
+    width: 92vw;
+    max-height: calc(100dvh - 24px);
+  }
+
+  .gif-result {
+    width: min(84vw, 350px);
+    max-height: 55dvh;
+    margin-bottom: 16px;
+  }
+
+  .result-container h1 {
+    font-size: clamp(1.8rem, 9vw, 2.7rem);
+  }
 }
 
-/* =========================================================
+/* =========================
    VERY SMALL PHONES
-========================================================= */
+========================= */
 
 @media (max-width: 360px) {
 
-  .music-intro h1 {
-    font-size: 1.9rem;
-  }
-
-  .play-song-btn {
-    min-width: 155px;
-    padding: 12px 20px;
+  .music-intro-content {
+    width: 92vw;
   }
 
   .question-container {
@@ -516,18 +547,12 @@ body {
   }
 
   .local-gif {
-    width: 68vw;
-    max-height: 35dvh;
-    margin-bottom: 1.2rem;
+    width: 66vw;
+    max-height: 34dvh;
   }
 
   .question {
     font-size: 1.7rem;
-    margin-bottom: 1rem;
-  }
-
-  .button-container {
-    gap: 8px;
   }
 
   .btn {
@@ -535,17 +560,22 @@ body {
     padding: 10px 17px;
     font-size: 15px;
   }
+
+  .gif-result {
+    width: 80vw;
+    max-height: 50dvh;
+  }
+
+  .result-container h1 {
+    font-size: 1.7rem;
+  }
 }
 
-/* =========================================================
+/* =========================
    LANDSCAPE MOBILE
-========================================================= */
+========================= */
 
 @media (max-height: 520px) and (orientation: landscape) {
-
-  .music-intro-content {
-    transform: scale(0.82);
-  }
 
   .question-container {
     width: 90vw;
@@ -553,30 +583,39 @@ body {
 
   .local-gif {
     width: 170px;
-    max-height: 38dvh;
-    margin-bottom: 8px;
+    max-height: 34dvh;
+    margin-bottom: 7px;
   }
 
   .question {
     font-size: 1.8rem;
-    margin-bottom: 8px;
+    margin-bottom: 7px;
   }
 
   .button-container {
-    min-height: 46px;
+    min-height: 45px;
   }
 
   .btn {
     padding: 9px 20px;
   }
+
+  .gif-result {
+    width: 220px;
+    max-height: 55dvh;
+    margin-bottom: 8px;
+  }
+
+  .result-container h1 {
+    font-size: 1.8rem;
+  }
 }
 
-/* =========================================================
+/* =========================
    REDUCED MOTION
-========================================================= */
+========================= */
 
 @media (prefers-reduced-motion: reduce) {
-
   .music-note,
   .btn,
   .question-container,
