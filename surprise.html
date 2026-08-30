@@ -2,25 +2,42 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
 <meta name="theme-color" content="#ffffff">
+
 <title>Surprise ❤️</title>
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html, body {
+html,
+body {
   width: 100%;
   min-height: 100%;
 }
 
 body {
   min-height: 100dvh;
+
   overflow: hidden;
-  background: #fff;
-  font-family: "Quicksand", Arial, sans-serif;
+
+  background: #ffffff;
+
+  font-family:
+    "Quicksand",
+    Arial,
+    sans-serif;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -33,10 +50,14 @@ body {
 
 .surprise-page {
   width: min(92vw, 650px);
-  min-height: calc(100dvh - 32px);
+
+  min-height:
+    calc(100dvh - 32px);
 
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
@@ -45,38 +66,93 @@ body {
 
 .surprise-image {
   display: block;
+
   width: min(88vw, 520px);
+
   max-width: 100%;
   max-height: 68dvh;
+
   height: auto;
+
   object-fit: contain;
+
   border-radius: 14px;
+
   margin-bottom: 22px;
+
   pointer-events: none;
   user-select: none;
 }
 
 .surprise-page h1 {
   color: #ff54a4;
-  font-size: clamp(2rem, 8vw, 3.4rem);
+
+  font-size:
+    clamp(2rem, 8vw, 3.4rem);
+
   line-height: 1.15;
+
   margin-bottom: 8px;
 }
 
 .surprise-page p {
-  color: #777;
-  font-size: clamp(.95rem, 4vw, 1.1rem);
+  color: #777777;
+
+  font-size:
+    clamp(.95rem, 4vw, 1.1rem);
+}
+
+.audio-fallback {
+  display: none;
+
+  position: fixed;
+
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom));
+
+  transform:
+    translateX(-50%);
+
+  z-index: 100;
+
+  border: 0;
+  border-radius: 999px;
+
+  padding: 12px 24px;
+
+  background: #ff54a4;
+  color: #ffffff;
+
+  font-family:
+    "Quicksand",
+    Arial,
+    sans-serif;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 5px 18px rgba(255, 84, 164, .3);
+
+  cursor: pointer;
+}
+
+.audio-fallback.show {
+  display: block;
 }
 
 @media (max-width: 600px) {
+
   .surprise-image {
     width: min(88vw, 380px);
     max-height: 58dvh;
+
     margin-bottom: 18px;
   }
+
 }
 
 @media (max-width: 360px) {
+
   .surprise-image {
     width: 84vw;
     max-height: 52dvh;
@@ -85,6 +161,7 @@ body {
   .surprise-page h1 {
     font-size: 1.75rem;
   }
+
 }
 </style>
 </head>
@@ -98,10 +175,16 @@ body {
     src="./wishes.png"
     alt="Special anniversary wish">
 
-  <h1>A little surprise ❤️</h1>
-  <p>Made with love, just for you.</p>
+  <h1>
+    A little surprise ❤️
+  </h1>
+
+  <p>
+    Made with love, just for you.
+  </p>
 
 </main>
+
 
 <audio
   id="surpriseSong"
@@ -111,18 +194,124 @@ body {
   preload="auto">
 </audio>
 
+
+<button
+  id="playSurpriseBtn"
+  class="audio-fallback"
+  type="button">
+  ▶ Play Surprise Song
+</button>
+
+
 <script>
 const surpriseSong =
-  document.getElementById("surpriseSong");
-
-surpriseSong.currentTime = 0;
-
-surpriseSong.play().catch(error => {
-  console.warn(
-    "surpriseSong autoplay blocked:",
-    error
+  document.getElementById(
+    "surpriseSong"
   );
-});
+
+const playSurpriseBtn =
+  document.getElementById(
+    "playSurpriseBtn"
+  );
+
+
+/*
+ * Start surpriseSong from 00:00.
+ */
+async function startSurpriseSong() {
+
+  try {
+
+    surpriseSong.currentTime =
+      0;
+
+    await surpriseSong.play();
+
+    /*
+     * Autoplay worked.
+     */
+    playSurpriseBtn.classList.remove(
+      "show"
+    );
+
+  } catch (error) {
+
+    /*
+     * IMPORTANT:
+     *
+     * Modern browsers can block audible autoplay
+     * after navigation to a new HTML document.
+     *
+     * In that case, show one clean Play button.
+     */
+    playSurpriseBtn.classList.add(
+      "show"
+    );
+
+    console.warn(
+      "surpriseSong autoplay was blocked:",
+      error
+    );
+
+  }
+
+}
+
+
+/*
+ * User fallback if browser blocks autoplay.
+ */
+playSurpriseBtn.addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      await surpriseSong.play();
+
+      playSurpriseBtn.classList.remove(
+        "show"
+      );
+
+    } catch (error) {
+
+      console.warn(
+        "surpriseSong could not play:",
+        error
+      );
+
+    }
+
+  }
+);
+
+
+/*
+ * Keep the song looping.
+ */
+surpriseSong.addEventListener(
+  "ended",
+  () => {
+
+    surpriseSong.currentTime =
+      0;
+
+    surpriseSong.play().catch(() => {
+
+      playSurpriseBtn.classList.add(
+        "show"
+      );
+
+    });
+
+  }
+);
+
+
+/*
+ * Try autoplay immediately.
+ */
+startSurpriseSong();
 </script>
 
 </body>

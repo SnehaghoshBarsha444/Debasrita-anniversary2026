@@ -1,235 +1,608 @@
-const intro = document.getElementById("musicIntro");
-const playBtn = document.getElementById("playSongBtn");
-const mainPage = document.getElementById("mainPage");
-const song = document.getElementById("backgroundSong");
+const intro =
+  document.getElementById("musicIntro");
 
-const question = document.querySelector(".question-container");
-const yesBtn = document.querySelector(".yes-btn");
-const noBtn = document.querySelector(".no-btn");
-const loader = document.getElementById("heartLoader");
+const playBtn =
+  document.getElementById("playSongBtn");
 
-const START = 43;
-const POSITION_KEY = "debnit-anniversary-ishq-position";
+const mainPage =
+  document.getElementById("mainPage");
+
+const song =
+  document.getElementById("backgroundSong");
+
+const question =
+  document.querySelector(".question-container");
+
+const yesBtn =
+  document.getElementById("yesBtn");
+
+const noBtn =
+  document.getElementById("noBtn");
+
+const loader =
+  document.getElementById("heartLoader");
+
+
+const START_TIME = 43;
+
+const POSITION_KEY =
+  "debnit-anniversary-ishq-position";
+
 
 let yesClicked = false;
-let moving = false;
+let noMoving = false;
 let lastMove = 0;
 
-async function seekAndPlay(audio, time) {
+
+/* =========================================================
+   MAIN MUSIC
+========================================================= */
+
+async function playFromTime(audio, time) {
+
   try {
-    await new Promise(resolve => {
-      if (audio.readyState >= 1) return resolve();
-      audio.addEventListener("loadedmetadata", resolve, { once: true });
-      setTimeout(resolve, 2000);
-    });
-
-    audio.currentTime = Math.max(START, Number(time) || START);
 
     await new Promise(resolve => {
-      const done = () => {
-        audio.removeEventListener("seeked", done);
+
+      if (audio.readyState >= 1) {
         resolve();
-      };
-      audio.addEventListener("seeked", done, { once: true });
-      setTimeout(done, 1200);
+        return;
+      }
+
+      audio.addEventListener(
+        "loadedmetadata",
+        resolve,
+        { once: true }
+      );
+
+      setTimeout(resolve, 2000);
+
     });
+
+
+    audio.currentTime =
+      Math.max(
+        START_TIME,
+        Number(time) || START_TIME
+      );
+
+
+    await new Promise(resolve => {
+
+      const done = () => {
+
+        audio.removeEventListener(
+          "seeked",
+          done
+        );
+
+        resolve();
+
+      };
+
+      audio.addEventListener(
+        "seeked",
+        done,
+        { once: true }
+      );
+
+      setTimeout(done, 1200);
+
+    });
+
 
     await audio.play();
+
   } catch (error) {
-    console.warn("Music playback blocked/unavailable:", error);
+
+    console.warn(
+      "Main music could not play:",
+      error
+    );
+
   }
+
 }
 
-playBtn.addEventListener("click", () => {
-  if (playBtn.disabled) return;
 
-  playBtn.disabled = true;
+playBtn.addEventListener(
+  "click",
+  () => {
 
-  seekAndPlay(song, START);
+    if (playBtn.disabled) {
+      return;
+    }
 
-  intro.classList.add("hidden");
-  mainPage.classList.add("visible");
-  mainPage.setAttribute("aria-hidden", "false");
+    playBtn.disabled = true;
 
-  setTimeout(() => {
-    intro.style.display = "none";
-  }, 550);
-});
+    /*
+     * User gesture starts the audio.
+     */
+    playFromTime(
+      song,
+      START_TIME
+    );
 
-/* Save the exact playback position for result.html. */
+
+    intro.classList.add("hidden");
+
+    mainPage.classList.add("visible");
+
+    mainPage.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+
+    setTimeout(() => {
+
+      intro.style.display =
+        "none";
+
+    }, 550);
+
+  }
+);
+
+
+/*
+ * Save playback position continuously.
+ */
 setInterval(() => {
-  if (song && !song.paused && Number.isFinite(song.currentTime)) {
-    localStorage.setItem(POSITION_KEY, String(song.currentTime));
-  }
-}, 200);
 
-song.addEventListener("ended", async () => {
-  song.currentTime = START;
-  await seekAndPlay(song, START);
-});
+  if (
+    song &&
+    !song.paused &&
+    Number.isFinite(song.currentTime)
+  ) {
 
-
-/* =========================
-   NO BUTTON
-========================= */
-
-function viewport() {
-  if (window.visualViewport) {
-    return {
-      width: window.visualViewport.width,
-      height: window.visualViewport.height
-    };
-  }
-
-  return {
-    width: document.documentElement.clientWidth || window.innerWidth,
-    height: document.documentElement.clientHeight || window.innerHeight
-  };
-}
-
-function moveNo(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  if (yesClicked || moving) return;
-
-  const now = Date.now();
-
-  if (now - lastMove < 180) return;
-
-  lastMove = now;
-  moving = true;
-
-  const v = viewport();
-  const r = noBtn.getBoundingClientRect();
-  const yes = yesBtn.getBoundingClientRect();
-
-  const padding = Math.max(
-    10,
-    Math.min(20, v.width * 0.035)
-  );
-
-  const minX = padding;
-  const maxX = Math.max(
-    minX,
-    v.width - r.width - padding
-  );
-
-  const minY = padding;
-  const maxY = Math.max(
-    minY,
-    v.height - r.height - padding
-  );
-
-  let x = minX;
-  let y = minY;
-
-  for (let i = 0; i < 100; i++) {
-    const testX =
-      minX +
-      Math.random() *
-      Math.max(1, maxX - minX);
-
-    const testY =
-      minY +
-      Math.random() *
-      Math.max(1, maxY - minY);
-
-    const gap = 28;
-
-    const collision =
-      testX < yes.right + gap &&
-      testX + r.width > yes.left - gap &&
-      testY < yes.bottom + gap &&
-      testY + r.height > yes.top - gap;
-
-    x = testX;
-    y = testY;
-
-    if (!collision) break;
-  }
-
-  x = Math.max(minX, Math.min(x, maxX));
-  y = Math.max(minY, Math.min(y, maxY));
-
-  noBtn.style.position = "fixed";
-  noBtn.style.left = `${Math.round(x)}px`;
-  noBtn.style.top = `${Math.round(y)}px`;
-  noBtn.style.right = "auto";
-  noBtn.style.bottom = "auto";
-  noBtn.style.margin = "0";
-  noBtn.style.transform = "scale(1.05)";
-
-  setTimeout(() => {
-    moving = false;
-  }, 220);
-}
-
-noBtn.addEventListener("pointerenter", event => {
-  if (event.pointerType === "mouse") moveNo(event);
-});
-
-noBtn.addEventListener(
-  "pointerdown",
-  moveNo,
-  { passive: false }
-);
-
-noBtn.addEventListener(
-  "touchstart",
-  moveNo,
-  { passive: false }
-);
-
-noBtn.addEventListener("click", event => {
-  event.preventDefault();
-  event.stopPropagation();
-  moveNo(event);
-});
-
-
-/* =========================
-   YES ONLY -> RESULT
-========================= */
-
-yesBtn.addEventListener("click", () => {
-  if (yesClicked) return;
-
-  yesClicked = true;
-
-  noBtn.style.pointerEvents = "none";
-
-  if (song && Number.isFinite(song.currentTime)) {
     localStorage.setItem(
       POSITION_KEY,
       String(song.currentTime)
     );
+
   }
 
-  question.classList.add("hide");
-  loader.classList.add("show");
+}, 200);
+
+
+/*
+ * Loop Ishq Bulaava from 00:43.
+ */
+song.addEventListener(
+  "ended",
+  () => {
+
+    song.currentTime =
+      START_TIME;
+
+    playFromTime(
+      song,
+      START_TIME
+    );
+
+  }
+);
+
+
+/* =========================================================
+   NO BUTTON
+========================================================= */
+
+function getViewport() {
+
+  /*
+   * clientWidth/clientHeight are used because the button
+   * uses position: fixed.
+   */
+  return {
+
+    width:
+      document.documentElement.clientWidth ||
+      window.innerWidth,
+
+    height:
+      document.documentElement.clientHeight ||
+      window.innerHeight
+
+  };
+
+}
+
+
+function moveNoButton(event) {
+
+  if (event) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+  }
+
+
+  if (
+    yesClicked ||
+    noMoving
+  ) {
+
+    return;
+
+  }
+
+
+  const now =
+    Date.now();
+
+
+  if (
+    now - lastMove < 160
+  ) {
+
+    return;
+
+  }
+
+
+  lastMove =
+    now;
+
+  noMoving =
+    true;
+
+
+  const v =
+    getViewport();
+
+
+  const noRect =
+    noBtn.getBoundingClientRect();
+
+
+  const yesRect =
+    yesBtn.getBoundingClientRect();
+
+
+  /*
+   * Safe distance from every edge.
+   */
+  const padding =
+    Math.max(
+      10,
+      Math.min(
+        22,
+        v.width * 0.035
+      )
+    );
+
+
+  /*
+   * HARD viewport limits.
+   */
+  const minX =
+    padding;
+
+  const maxX =
+    Math.max(
+      minX,
+      v.width -
+      noRect.width -
+      padding
+    );
+
+
+  const minY =
+    padding;
+
+  const maxY =
+    Math.max(
+      minY,
+      v.height -
+      noRect.height -
+      padding
+    );
+
+
+  let finalX =
+    minX;
+
+  let finalY =
+    minY;
+
+
+  /*
+   * Find a position which does not overlap Yes.
+   */
+  for (
+    let attempt = 0;
+    attempt < 150;
+    attempt++
+  ) {
+
+    const x =
+      minX +
+      Math.random() *
+      Math.max(
+        1,
+        maxX - minX
+      );
+
+
+    const y =
+      minY +
+      Math.random() *
+      Math.max(
+        1,
+        maxY - minY
+      );
+
+
+    const gap =
+      35;
+
+
+    const overlapsYes =
+
+      x <
+        yesRect.right + gap
+
+      &&
+
+      x + noRect.width >
+        yesRect.left - gap
+
+      &&
+
+      y <
+        yesRect.bottom + gap
+
+      &&
+
+      y + noRect.height >
+        yesRect.top - gap;
+
+
+    if (!overlapsYes) {
+
+      finalX =
+        x;
+
+      finalY =
+        y;
+
+      break;
+
+    }
+
+
+    /*
+     * Valid fallback.
+     */
+    finalX =
+      x;
+
+    finalY =
+      y;
+
+  }
+
+
+  /*
+   * FINAL HARD CLAMP.
+   *
+   * No can never leave the viewport.
+   */
+  finalX =
+    Math.max(
+      minX,
+      Math.min(
+        finalX,
+        maxX
+      )
+    );
+
+
+  finalY =
+    Math.max(
+      minY,
+      Math.min(
+        finalY,
+        maxY
+      )
+    );
+
+
+  noBtn.style.position =
+    "fixed";
+
+  noBtn.style.left =
+    `${Math.round(finalX)}px`;
+
+  noBtn.style.top =
+    `${Math.round(finalY)}px`;
+
+  noBtn.style.right =
+    "auto";
+
+  noBtn.style.bottom =
+    "auto";
+
+  noBtn.style.margin =
+    "0";
+
+  noBtn.style.transform =
+    "scale(1.05)";
+
 
   setTimeout(() => {
-    window.location.href = "./result.html";
-  }, 800);
-});
 
-window.addEventListener("resize", () => {
-  if (yesClicked) return;
+    noMoving =
+      false;
 
-  noBtn.style.position = "";
-  noBtn.style.left = "";
-  noBtn.style.top = "";
-  noBtn.style.right = "";
-  noBtn.style.bottom = "";
-  noBtn.style.margin = "";
-  noBtn.style.transform = "";
+  }, 200);
 
-  moving = false;
-});
+}
 
-document.querySelectorAll("video").forEach(video => {
-  video.play().catch(() => {});
-});
+
+/*
+ * DESKTOP:
+ * Move when mouse approaches No.
+ */
+noBtn.addEventListener(
+  "pointerenter",
+  event => {
+
+    if (
+      event.pointerType === "mouse"
+    ) {
+
+      moveNoButton(event);
+
+    }
+
+  }
+);
+
+
+/*
+ * MOBILE:
+ * One touch = one escape.
+ */
+noBtn.addEventListener(
+  "pointerdown",
+  event => {
+
+    if (
+      event.pointerType === "touch" ||
+      event.pointerType === "pen"
+    ) {
+
+      moveNoButton(event);
+
+    }
+
+  },
+  {
+    passive: false
+  }
+);
+
+
+/*
+ * Older mobile browser fallback.
+ *
+ * There is deliberately NO click handler on No.
+ */
+noBtn.addEventListener(
+  "touchstart",
+  moveNoButton,
+  {
+    passive: false
+  }
+);
+
+
+/* =========================================================
+   YES
+========================================================= */
+
+yesBtn.addEventListener(
+  "click",
+  event => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    if (yesClicked) {
+      return;
+    }
+
+
+    yesClicked =
+      true;
+
+
+    noBtn.style.pointerEvents =
+      "none";
+
+
+    /*
+     * Save music position immediately.
+     */
+    if (
+      song &&
+      Number.isFinite(
+        song.currentTime
+      )
+    ) {
+
+      localStorage.setItem(
+        POSITION_KEY,
+        String(
+          song.currentTime
+        )
+      );
+
+    }
+
+
+    question.classList.add("hide");
+
+    loader.classList.add("show");
+
+
+    /*
+     * ONLY YES can navigate.
+     */
+    setTimeout(() => {
+
+      window.location.assign(
+        "./result.html"
+      );
+
+    }, 650);
+
+  }
+);
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (yesClicked) {
+      return;
+    }
+
+
+    noBtn.style.position = "";
+    noBtn.style.left = "";
+    noBtn.style.top = "";
+    noBtn.style.right = "";
+    noBtn.style.bottom = "";
+    noBtn.style.margin = "";
+    noBtn.style.transform = "";
+
+
+    noMoving =
+      false;
+
+  }
+);
+
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+document
+  .querySelectorAll("video")
+  .forEach(video => {
+
+    video.play().catch(() => {});
+
+  });

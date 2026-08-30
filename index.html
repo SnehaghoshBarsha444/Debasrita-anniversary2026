@@ -1,41 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Do you love me? ❤️</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Do you love me? ❤️</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<section class="music-intro" id="musicIntro">
-  <div class="music-card">
-    <div class="music-icon">♪</div>
-    <h1>Play the song</h1>
-    <p>A little something for you ❤️</p>
-    <button id="playSongBtn" class="primary-btn" type="button">▶ Play the song</button>
-  </div>
-</section>
+  <section class="music-intro" id="musicIntro">
+    <div class="music-card">
+      <div class="music-icon">♪</div>
+      <h1>Play the song</h1>
+      <p>A little something for you ❤️</p>
 
-<main id="mainPage" class="main-page" aria-hidden="true">
-  <section class="question-container">
-    <video class="local-gif" src="./Reply%20me%20love.mp4" autoplay muted loop playsinline></video>
-    <h1 class="question">Do you love me?</h1>
-
-    <div class="button-container">
-      <button class="btn yes-btn js-yes-btn" type="button">Yes</button>
-      <button class="btn no-btn js-no-btn" type="button">No</button>
+      <button id="playSongBtn" class="primary-btn" type="button">
+        ▶ Play the song
+      </button>
     </div>
   </section>
 
-  <div class="heart-loader" id="heartLoader" aria-hidden="true">♥</div>
-</main>
+  <main id="mainPage" class="main-page" aria-hidden="true">
 
-<audio id="backgroundSong" src="./Ishq%20Bulaava%20Hasee%20Toh%20Phasee%20128%20Kbps.mp3" preload="auto"></audio>
+    <section class="question-container">
 
-<script src="script.js"></script>
+      <video
+        class="local-gif"
+        src="./Reply%20me%20love.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto">
+      </video>
+
+      <h1 class="question">Do you love me?</h1>
+
+      <div class="button-container">
+
+        <button
+          id="yesBtn"
+          class="btn yes-btn"
+          type="button">
+          Yes
+        </button>
+
+        <button
+          id="noBtn"
+          class="btn no-btn"
+          type="button">
+          No
+        </button>
+
+      </div>
+
+    </section>
+
+    <div
+      id="heartLoader"
+      class="heart-loader"
+      aria-hidden="true">
+      ♥
+    </div>
+
+  </main>
+
+  <audio
+    id="backgroundSong"
+    src="./Ishq%20Bulaava%20Hasee%20Toh%20Phasee%20128%20Kbps.mp3"
+    preload="auto">
+  </audio>
+
+  <script src="./script.js"></script>
+
 </body>
 </html>

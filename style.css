@@ -7,15 +7,18 @@
 html,
 body {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
   min-height: 100dvh;
   overflow: hidden;
-  background: #fff;
-  color: #222;
+
+  background: #ffffff;
+  color: #222222;
+
   font-family: "Quicksand", sans-serif;
+
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -23,24 +26,30 @@ button {
   font: inherit;
 }
 
-/* INTRO */
+/* =========================
+   MUSIC INTRO
+========================= */
 
 .music-intro {
   position: fixed;
   inset: 0;
   z-index: 1000;
+
   width: 100%;
-  min-height: 100dvh;
+  height: 100dvh;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #fff;
+  background: #ffffff;
 
   opacity: 1;
   visibility: visible;
-  transition: opacity .5s ease, visibility .5s ease;
+
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s ease;
 }
 
 .music-intro.hidden {
@@ -56,20 +65,31 @@ button {
 
 .music-icon {
   color: #ff54a4;
+
   font-size: clamp(3.5rem, 15vw, 6rem);
   line-height: 1;
+
   margin-bottom: 12px;
-  animation: floatMusic 1.6s ease-in-out infinite;
+
+  animation:
+    floatMusic
+    1.6s
+    ease-in-out
+    infinite;
 }
 
 .music-card h1 {
-  font-size: clamp(2rem, 8vw, 3rem);
+  font-size:
+    clamp(2rem, 8vw, 3rem);
+
   line-height: 1.1;
 }
 
 .music-card p {
   margin: 10px 0 22px;
-  color: #777;
+
+  color: #777777;
+
   font-size: 1rem;
 }
 
@@ -78,19 +98,32 @@ button {
 .surprise-btn {
   border: 0;
   border-radius: 999px;
+
   background: #ff54a4;
-  color: white;
+  color: #ffffff;
+
   cursor: pointer;
-  box-shadow: 0 5px 18px rgba(255, 84, 164, .28);
+
   touch-action: manipulation;
+
   -webkit-user-select: none;
   user-select: none;
+
+  box-shadow:
+    0 5px 18px rgba(255, 84, 164, 0.28);
 }
 
 .primary-btn {
   min-height: 46px;
-  padding: 12px 24px;
+
+  padding:
+    12px 24px;
+
   font-weight: 600;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .primary-btn:hover,
@@ -99,21 +132,36 @@ button {
   background: #ff78b8;
 }
 
-@keyframes floatMusic {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+.primary-btn:hover {
+  transform: scale(1.05);
 }
 
-/* MAIN */
+@keyframes floatMusic {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* =========================
+   MAIN PAGE
+========================= */
 
 .main-page {
   position: relative;
+
   width: 100%;
   height: 100dvh;
 
   opacity: 0;
   visibility: hidden;
-  transition: opacity .5s ease, visibility .5s ease;
+
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s ease;
 }
 
 .main-page.visible {
@@ -123,73 +171,114 @@ button {
 
 .question-container {
   position: absolute;
+
   left: 50%;
   top: 50%;
+
   width: min(92vw, 620px);
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
+
   text-align: center;
 
-  transition: opacity .35s ease, transform .35s ease;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 
 .question-container.hide {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(.96);
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.96);
+
   pointer-events: none;
 }
 
 .local-gif {
   display: block;
+
   width: min(72vw, 300px);
   max-width: 100%;
   max-height: 42dvh;
+
   height: auto;
+
   object-fit: contain;
-  margin: 0 auto 18px;
+
+  margin:
+    0 auto 18px;
+
   pointer-events: none;
+
+  user-select: none;
 }
 
 .question {
-  font-size: clamp(2rem, 7vw, 3.5rem);
+  font-size:
+    clamp(2rem, 7vw, 3.5rem);
+
   line-height: 1.12;
+
   margin-bottom: 20px;
 }
 
+/* =========================
+   BUTTONS
+========================= */
+
 .button-container {
   position: relative;
-  min-height: 55px;
+
   width: 100%;
+  min-height: 55px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 16px;
 }
 
 .btn {
   min-width: 84px;
   min-height: 44px;
-  padding: 12px 22px;
+
+  padding:
+    12px 22px;
+
   font-size: 16px;
   font-weight: 600;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 .yes-btn {
   position: relative;
-  z-index: 20;
+  z-index: 100;
 }
 
 .no-btn {
   position: relative;
-  z-index: 30;
-  will-change: left, top, transform;
+  z-index: 50;
+
+  will-change:
+    left,
+    top;
 }
 
-/* LOADER */
+/* =========================
+   HEART LOADER
+========================= */
 
 .heart-loader {
   display: none;
+
   position: fixed;
   inset: 0;
   z-index: 500;
@@ -198,8 +287,14 @@ button {
   justify-content: center;
 
   color: #ff54a4;
-  font-size: 70px;
-  animation: heartbeat .8s infinite;
+
+  font-size: 72px;
+
+  animation:
+    heartbeat
+    0.8s
+    infinite;
+
   pointer-events: none;
 }
 
@@ -208,17 +303,25 @@ button {
 }
 
 @keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
 }
 
-/* RESULT */
+/* =========================
+   RESULT
+========================= */
 
 .result-body {
-  width: 100%;
   min-height: 100dvh;
+
   overflow: hidden;
-  background: #fff;
+
+  background: #ffffff;
 }
 
 .result-page {
@@ -226,21 +329,27 @@ button {
   min-height: 100dvh;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  padding: max(16px, env(safe-area-inset-top))
-           max(16px, env(safe-area-inset-right))
-           max(16px, env(safe-area-inset-bottom))
-           max(16px, env(safe-area-inset-left));
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
 }
 
 .result-container {
   width: min(92vw, 620px);
-  max-height: calc(100dvh - 32px);
+
+  max-height:
+    calc(100dvh - 32px);
 
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
@@ -249,56 +358,88 @@ button {
 
 .gif-result {
   display: block;
+
   width: min(86vw, 420px);
+
   max-width: 100%;
   max-height: 60dvh;
+
   height: auto;
+
   object-fit: contain;
-  margin: 0 auto 18px;
+
+  margin:
+    0 auto 18px;
+
   pointer-events: none;
 }
 
 .result-container h1 {
   color: #ff54a4;
-  font-size: clamp(2rem, 8vw, 3.2rem);
+
+  font-size:
+    clamp(2rem, 8vw, 3.2rem);
+
   line-height: 1.15;
+
   margin-bottom: 12px;
 }
 
 .surprise-btn {
   min-width: 130px;
   min-height: 44px;
-  padding: 11px 24px;
+
+  padding:
+    11px 24px;
+
   font-size: 16px;
   font-weight: 600;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
-/* MOBILE */
+.surprise-btn:hover {
+  transform: scale(1.06);
+}
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 600px) {
+
   .question-container {
     width: 92vw;
   }
 
   .local-gif {
     width: min(70vw, 270px);
+
     max-height: 38dvh;
+
     margin-bottom: 14px;
   }
 
   .question {
-    font-size: clamp(1.8rem, 9vw, 2.6rem);
+    font-size:
+      clamp(1.8rem, 9vw, 2.6rem);
+
     margin-bottom: 14px;
   }
 
   .button-container {
+    min-height: 52px;
     gap: 12px;
   }
 
   .btn {
     min-width: 82px;
     min-height: 44px;
-    padding: 11px 19px;
+
+    padding:
+      11px 19px;
   }
 
   .gif-result {
@@ -307,7 +448,12 @@ button {
   }
 }
 
+/* =========================
+   SMALL PHONES
+========================= */
+
 @media (max-width: 360px) {
+
   .local-gif {
     width: 66vw;
     max-height: 34dvh;
@@ -319,7 +465,10 @@ button {
 
   .btn {
     min-width: 76px;
-    padding: 10px 17px;
+
+    padding:
+      10px 17px;
+
     font-size: 15px;
   }
 
@@ -329,10 +478,16 @@ button {
   }
 }
 
+/* =========================
+   LANDSCAPE PHONES
+========================= */
+
 @media (max-height: 520px) and (orientation: landscape) {
+
   .local-gif {
     width: 180px;
     max-height: 34dvh;
+
     margin-bottom: 8px;
   }
 
@@ -349,6 +504,5 @@ button {
   .gif-result {
     width: 230px;
     max-height: 54dvh;
-    margin-bottom: 8px;
   }
 }
