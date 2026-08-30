@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <meta name="theme-color" content="#ffffff">
 
@@ -46,9 +46,246 @@
 
   </main>
 
+
+  <!-- Same song continues in the background -->
+  <audio
+    id="resultBackgroundSong"
+    src="Ishq Bulaava Hasee Toh Phasee 128 Kbps.mp3"
+    preload="auto">
+  </audio>
+
+
   <script>
+    /*
+     * Same song, same starting point.
+     * The index page stores the exact playback position
+     * before navigation.
+     */
+    const SONG_START_TIME = 43.000;
+    const MUSIC_POSITION_KEY =
+      "debasrita_music_position_43";
+
+    const resultSong =
+      document.getElementById(
+        "resultBackgroundSong"
+      );
+
+
+    function getSavedPosition() {
+
+      try {
+
+        const saved =
+          Number(
+            localStorage.getItem(
+              MUSIC_POSITION_KEY
+            )
+          );
+
+        /*
+         * Valid position must be at or after 43 seconds.
+         */
+        if (
+          Number.isFinite(saved) &&
+          saved >= SONG_START_TIME
+        ) {
+
+          return saved;
+
+        }
+
+      } catch (error) {
+
+        console.warn(
+          "Could not read music position:",
+          error
+        );
+
+      }
+
+      return SONG_START_TIME;
+    }
+
+
+    function saveResultPosition() {
+
+      if (
+        resultSong &&
+        Number.isFinite(
+          resultSong.currentTime
+        )
+      ) {
+
+        try {
+
+          localStorage.setItem(
+            MUSIC_POSITION_KEY,
+            String(
+              resultSong.currentTime
+            )
+          );
+
+        } catch (error) {}
+
+      }
+
+    }
+
+
+    /*
+     * Wait for metadata, then continue from the exact
+     * position saved by the previous page.
+     */
+    async function startResultSong() {
+
+      try {
+
+        if (resultSong.readyState < 1) {
+
+          await new Promise((resolve) => {
+
+            if (resultSong.readyState >= 1) {
+              resolve();
+              return;
+            }
+
+            resultSong.addEventListener(
+              "loadedmetadata",
+              resolve,
+              { once: true }
+            );
+
+            setTimeout(resolve, 2000);
+
+          });
+
+        }
+
+
+        const savedPosition =
+          getSavedPosition();
+
+
+        /*
+         * Seek BEFORE play.
+         */
+        resultSong.currentTime =
+          savedPosition;
+
+
+        await new Promise((resolve) => {
+
+          if (
+            Math.abs(
+              resultSong.currentTime -
+              savedPosition
+            ) < 0.05
+          ) {
+
+            resolve();
+            return;
+
+          }
+
+          resultSong.addEventListener(
+            "seeked",
+            resolve,
+            { once: true }
+          );
+
+          setTimeout(resolve, 1000);
+
+        });
+
+
+        await resultSong.play();
+
+      } catch (error) {
+
+        /*
+         * Some browsers may block audio after navigation.
+         * The result page itself still works normally.
+         */
+        console.warn(
+          "Result-page background audio could not autoplay:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+     * If the song reaches the end, restart from 43 seconds.
+     */
+    resultSong.addEventListener(
+      "ended",
+      async () => {
+
+        try {
+
+          resultSong.pause();
+
+          resultSong.currentTime =
+            SONG_START_TIME;
+
+          await new Promise((resolve) => {
+
+            resultSong.addEventListener(
+              "seeked",
+              resolve,
+              { once: true }
+            );
+
+            setTimeout(resolve, 1000);
+
+          });
+
+          await resultSong.play();
+
+        } catch (error) {
+
+          console.warn(
+            "Could not restart result-page music:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Keep saving the position while the result page
+     * is open.
+     */
+    setInterval(
+      saveResultPosition,
+      250
+    );
+
+
+    window.addEventListener(
+      "pagehide",
+      saveResultPosition
+    );
+
+
+    /*
+     * Start the background music.
+     */
+    startResultSong();
+
+
+    /*
+     * Result video.
+     */
     const resultVideo =
-      document.querySelector(".gif-result");
+      document.querySelector(
+        ".gif-result"
+      );
 
     resultVideo.play().catch(() => {});
   </script>

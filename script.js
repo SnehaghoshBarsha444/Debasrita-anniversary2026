@@ -605,3 +605,64 @@ document
     video.play().catch(() => {});
 
   });
+
+
+/* =========================================================
+   KEEP SONG POSITION WHEN MOVING TO RESULT.HTML
+========================================================= */
+
+const MUSIC_POSITION_KEY = "debasrita_music_position_43";
+
+
+/*
+ * Save the current song position frequently so result.html
+ * can continue from the same point instead of stopping.
+ */
+setInterval(() => {
+
+  if (
+    backgroundSong &&
+    !backgroundSong.paused &&
+    Number.isFinite(backgroundSong.currentTime)
+  ) {
+
+    try {
+
+      localStorage.setItem(
+        MUSIC_POSITION_KEY,
+        String(backgroundSong.currentTime)
+      );
+
+    } catch (error) {
+      console.warn("Could not save music position:", error);
+    }
+
+  }
+
+}, 250);
+
+
+/*
+ * Save immediately when the page is being left.
+ */
+window.addEventListener("pagehide", () => {
+
+  if (
+    backgroundSong &&
+    Number.isFinite(backgroundSong.currentTime)
+  ) {
+
+    try {
+
+      localStorage.setItem(
+        MUSIC_POSITION_KEY,
+        String(backgroundSong.currentTime)
+      );
+
+    } catch (error) {
+      console.warn("Could not save music position:", error);
+    }
+
+  }
+
+});
