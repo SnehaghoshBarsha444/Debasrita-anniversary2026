@@ -1,3 +1,8 @@
+const musicIntro = document.getElementById("musicIntro");
+const playSongBtn = document.getElementById("playSongBtn");
+const mainPage = document.getElementById("mainPage");
+const backgroundSong = document.getElementById("backgroundSong");
+
 const questionContainer = document.querySelector(".question-container");
 const yesBtn = document.querySelector(".js-yes-btn");
 const noBtn = document.querySelector(".js-no-btn");
@@ -8,50 +13,57 @@ let lastMoveTime = 0;
 
 
 /* =========================================================
-   YES BUTTON
-   ========================================================= */
+   MUSIC INTRO
+   User must explicitly press Play because browsers block
+   unexpected audio autoplay.
+========================================================= */
 
-yesBtn.addEventListener("click", () => {
-  if (moving) return;
+playSongBtn.addEventListener("click", async () => {
 
-  questionContainer.classList.add("question-hidden");
-  heartLoader.classList.add("show");
+  try {
+    await backgroundSong.play();
+  } catch (error) {
+    console.log("Audio playback was blocked:", error);
+  }
 
+  musicIntro.classList.add("intro-hidden");
+
+  mainPage.classList.add("main-visible");
+  mainPage.setAttribute("aria-hidden", "false");
+
+  /*
+   * Keep the intro completely out of the way after transition.
+   */
   setTimeout(() => {
-    window.location.href = "result.html";
-  }, 900);
+    musicIntro.style.display = "none";
+  }, 650);
 });
 
 
 /* =========================================================
-   GET REAL MOBILE VIEWPORT
-   ========================================================= */
+   NO BUTTON
+   It keeps escaping on the SAME webpage.
+========================================================= */
 
 function getViewport() {
-  const viewport = window.visualViewport;
 
-  if (viewport) {
+  if (window.visualViewport) {
     return {
-      width: viewport.width,
-      height: viewport.height,
-      offsetLeft: viewport.offsetLeft || 0,
-      offsetTop: viewport.offsetTop || 0
+      width: window.visualViewport.width,
+      height: window.visualViewport.height,
+      left: window.visualViewport.offsetLeft || 0,
+      top: window.visualViewport.offsetTop || 0
     };
   }
 
   return {
     width: document.documentElement.clientWidth,
     height: document.documentElement.clientHeight,
-    offsetLeft: 0,
-    offsetTop: 0
+    left: 0,
+    top: 0
   };
 }
 
-
-/* =========================================================
-   MOVE NO BUTTON
-   ALWAYS KEEP IT INSIDE PHONE SCREEN
-   ========================================================= */
 
 function moveNoButton(event) {
 
@@ -62,128 +74,56 @@ function moveNoButton(event) {
 
   const now = Date.now();
 
-  /*
-   * Prevent touchstart + pointerdown + click
-   * from triggering multiple movements at once.
-   */
-  if (now - lastMoveTime < 180) {
-    return;
-  }
-
+  if (now - lastMoveTime < 180) return;
   lastMoveTime = now;
 
-  if (moving) {
-    return;
-  }
-
+  if (moving) return;
   moving = true;
 
-
-  /* -------------------------------------------------------
-     Measure the button
-  ------------------------------------------------------- */
-
   const buttonRect = noBtn.getBoundingClientRect();
-
-  const buttonWidth = buttonRect.width;
-  const buttonHeight = buttonRect.height;
-
-
-  /* -------------------------------------------------------
-     Get REAL visible viewport
-  ------------------------------------------------------- */
-
+  const yesRect = yesBtn.getBoundingClientRect();
   const viewport = getViewport();
 
-  const viewportWidth = viewport.width;
-  const viewportHeight = viewport.height;
+  const padding = Math.max(
+    12,
+    Math.min(24, viewport.width * 0.04)
+  );
 
-  const viewportLeft = viewport.offsetLeft;
-  const viewportTop = viewport.offsetTop;
-
-
-  /* -------------------------------------------------------
-     Safe distance from phone edges
-  ------------------------------------------------------- */
-
-  const horizontalPadding =
-    Math.max(12, Math.min(24, viewportWidth * 0.04));
-
-  const verticalPadding =
-    Math.max(12, Math.min(24, viewportHeight * 0.035));
-
-
-  /* -------------------------------------------------------
-     Calculate absolutely safe boundaries
-  ------------------------------------------------------- */
-
-  const minLeft =
-    viewportLeft + horizontalPadding;
-
+  const minLeft = viewport.left + padding;
   const maxLeft =
-    viewportLeft +
-    viewportWidth -
-    buttonWidth -
-    horizontalPadding;
+    viewport.left +
+    viewport.width -
+    buttonRect.width -
+    padding;
 
-  const minTop =
-    viewportTop + verticalPadding;
-
+  const minTop = viewport.top + padding;
   const maxTop =
-    viewportTop +
-    viewportHeight -
-    buttonHeight -
-    verticalPadding;
+    viewport.top +
+    viewport.height -
+    buttonRect.height -
+    padding;
 
-
-  /* -------------------------------------------------------
-     Make sure boundaries are valid
-  ------------------------------------------------------- */
-
-  const safeMinLeft = Math.min(minLeft, maxLeft);
-  const safeMaxLeft = Math.max(minLeft, maxLeft);
-
-  const safeMinTop = Math.min(minTop, maxTop);
-  const safeMaxTop = Math.max(minTop, maxTop);
-
-
-  /* -------------------------------------------------------
-     Get Yes button position
-     So No doesn't land directly on Yes
-  ------------------------------------------------------- */
-
-  const yesRect = yesBtn.getBoundingClientRect();
-
-  let newLeft = 0;
-  let newTop = 0;
+  let newLeft = minLeft;
+  let newTop = minTop;
 
   let attempts = 0;
 
-  while (attempts < 50) {
+  while (attempts < 60) {
 
     newLeft =
-      safeMinLeft +
+      minLeft +
       Math.random() *
-      Math.max(1, safeMaxLeft - safeMinLeft);
+      Math.max(1, maxLeft - minLeft);
 
     newTop =
-      safeMinTop +
+      minTop +
       Math.random() *
-      Math.max(1, safeMaxTop - safeMinTop);
+      Math.max(1, maxTop - minTop);
 
+    const noRight = newLeft + buttonRect.width;
+    const noBottom = newTop + buttonRect.height;
 
-    const noRight =
-      newLeft + buttonWidth;
-
-    const noBottom =
-      newTop + buttonHeight;
-
-
-    /*
-     * Extra gap around Yes button
-     */
-    const gap = 20;
-
+    const gap = 25;
 
     const overlapsYes =
       newLeft < yesRect.right + gap &&
@@ -191,50 +131,31 @@ function moveNoButton(event) {
       newTop < yesRect.bottom + gap &&
       noBottom > yesRect.top - gap;
 
-
-    if (!overlapsYes) {
-      break;
-    }
+    if (!overlapsYes) break;
 
     attempts++;
   }
 
-
-  /* -------------------------------------------------------
-     FINAL HARD CLAMP
-     This is the important part.
-     The button can NEVER go outside the viewport.
-  ------------------------------------------------------- */
-
+  /*
+   * Final hard clamp.
+   * No button can ever leave the visible screen.
+   */
   newLeft = Math.max(
-    safeMinLeft,
-    Math.min(newLeft, safeMaxLeft)
+    minLeft,
+    Math.min(newLeft, Math.max(minLeft, maxLeft))
   );
 
   newTop = Math.max(
-    safeMinTop,
-    Math.min(newTop, safeMaxTop)
+    minTop,
+    Math.min(newTop, Math.max(minTop, maxTop))
   );
 
-
-  /* -------------------------------------------------------
-     Apply fixed viewport position
-  ------------------------------------------------------- */
-
   noBtn.style.position = "fixed";
-
   noBtn.style.left = `${Math.round(newLeft)}px`;
   noBtn.style.top = `${Math.round(newTop)}px`;
-
   noBtn.style.right = "auto";
   noBtn.style.bottom = "auto";
-
   noBtn.style.transform = "scale(1.05)";
-
-
-  /* -------------------------------------------------------
-     Release movement lock
-  ------------------------------------------------------- */
 
   setTimeout(() => {
     moving = false;
@@ -242,11 +163,7 @@ function moveNoButton(event) {
 }
 
 
-/* =========================================================
-   DESKTOP MOUSE
-   Move before mouse can click
-   ========================================================= */
-
+/* Desktop */
 noBtn.addEventListener("pointerenter", (event) => {
 
   if (event.pointerType === "mouse") {
@@ -256,43 +173,47 @@ noBtn.addEventListener("pointerenter", (event) => {
 });
 
 
-/* =========================================================
-   MOBILE TOUCH
-   ========================================================= */
-
-noBtn.addEventListener(
-  "pointerdown",
-  moveNoButton
-);
+/* Mobile + tablet */
+noBtn.addEventListener("pointerdown", moveNoButton);
 
 
-/*
- * Older mobile browser fallback
- */
+/* Older touch fallback */
 noBtn.addEventListener(
   "touchstart",
   moveNoButton,
-  {
-    passive: false
-  }
+  { passive: false }
 );
 
 
-/*
- * Extra protection
- */
+/* Final protection */
 noBtn.addEventListener("click", (event) => {
-
   event.preventDefault();
-
   moveNoButton(event);
+});
+
+
+/* =========================================================
+   YES BUTTON
+   Same behaviour as before:
+   loader -> next webpage
+========================================================= */
+
+yesBtn.addEventListener("click", () => {
+
+  questionContainer.classList.add("question-hidden");
+
+  heartLoader.classList.add("show");
+
+  setTimeout(() => {
+    window.location.href = "result.html";
+  }, 900);
 
 });
 
 
 /* =========================================================
-   RESET AFTER PHONE ROTATION / RESIZE
-   ========================================================= */
+   PHONE ROTATION / RESIZE
+========================================================= */
 
 function resetNoButton() {
 
@@ -307,39 +228,25 @@ function resetNoButton() {
 }
 
 
-/*
- * Normal browser resize
- */
-window.addEventListener(
-  "resize",
-  resetNoButton
-);
+window.addEventListener("resize", resetNoButton);
 
 
-/*
- * Mobile visual viewport resize
- * Handles address bar appearing/disappearing.
- */
 if (window.visualViewport) {
-
   window.visualViewport.addEventListener(
     "resize",
     resetNoButton
   );
-
 }
 
 
 /* =========================================================
    VIDEO AUTOPLAY
-   ========================================================= */
+========================================================= */
 
 document.querySelectorAll("video").forEach((video) => {
 
   video.play().catch(() => {
-    /*
-     * Some browsers wait for user interaction.
-     */
+    // Browser may wait for interaction.
   });
 
 });

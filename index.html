@@ -9,13 +9,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <title>Do you love me? ❤️</title>
+  <title>For You ❤️</title>
 </head>
 
 <body>
-  <main class="page-shell">
 
-    <section class="question-container container" aria-label="Love question">
+  <!-- =====================================================
+       INTRO / MUSIC SCREEN
+       This is shown first when the website opens.
+  ====================================================== -->
+  <section class="music-intro" id="musicIntro">
+    <div class="music-intro-content">
+
+      <div class="music-note" aria-hidden="true">♪</div>
+
+      <h1>Play the song</h1>
+
+      <p>A little something for you ❤️</p>
+
+      <button
+        type="button"
+        class="play-song-btn"
+        id="playSongBtn">
+        ▶ Play the song
+      </button>
+
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       MAIN LOVE QUESTION
+       Hidden until the song is started.
+  ====================================================== -->
+  <main class="page-shell" id="mainPage" aria-hidden="true">
+
+    <section
+      class="question-container container"
+      aria-label="Love question">
+
       <video
         class="local-gif"
         src="Reply me love.mp4"
@@ -27,30 +59,59 @@
         aria-hidden="true">
       </video>
 
-      <h1 class="question">Do you love me?</h1>
+      <h1 class="question">
+        Do you love me?
+      </h1>
 
       <div class="button-container">
-        <button type="button" class="yes-btn btn js-yes-btn">
+
+        <button
+          type="button"
+          class="yes-btn btn js-yes-btn">
           Yes
         </button>
 
-        <button type="button" class="no-btn btn js-no-btn">
+        <button
+          type="button"
+          class="no-btn btn js-no-btn">
           No
         </button>
+
       </div>
     </section>
 
-    <div class="cssload-main" aria-hidden="true">
+
+    <!-- Heart loader shown before result.html -->
+    <div
+      class="cssload-main"
+      aria-hidden="true">
+
       <div class="cssload-heart">
         <span class="cssload-heartL"></span>
         <span class="cssload-heartR"></span>
         <span class="cssload-square"></span>
       </div>
+
       <div class="cssload-shadow"></div>
     </div>
 
   </main>
 
+
+  <!-- =====================================================
+       BACKGROUND SONG
+       The user's uploaded song should be placed beside
+       index.html with this exact filename.
+  ====================================================== -->
+  <audio
+    id="backgroundSong"
+    src="Ishq Bulaava Hasee Toh Phasee 128 Kbps.mp3"
+    loop
+    preload="auto">
+  </audio>
+
+
   <script src="script.js"></script>
+
 </body>
 </html>
