@@ -153,12 +153,8 @@ body {
 
 @media (max-width: 360px) {
 
-  .photo-card {
-    width: 84vw;
-    max-height: 52dvh;
-  }
-
   .surprise-image {
+    width: 84vw;
     max-height: 52dvh;
   }
 
@@ -208,83 +204,6 @@ body {
 
 
 <script>
-/* =========================
-   PHOTO CARD SWAP
-========================= */
-
-const photoCard =
-  document.getElementById("photoCard");
-
-const surpriseImage =
-  document.getElementById("surpriseImage");
-
-let showingWishes = true;
-
-function swapPhoto() {
-
-  surpriseImage.style.opacity = "0";
-  surpriseImage.style.transform =
-    "scale(0.97)";
-
-  setTimeout(() => {
-
-    if (showingWishes) {
-
-      surpriseImage.src =
-        "./photo.jpeg";
-
-      surpriseImage.alt =
-        "Special photo";
-
-    } else {
-
-      surpriseImage.src =
-        "./wishes.png";
-
-      surpriseImage.alt =
-        "Special anniversary wish";
-
-    }
-
-    showingWishes =
-      !showingWishes;
-
-    surpriseImage.style.opacity =
-      "1";
-
-    surpriseImage.style.transform =
-      "scale(1)";
-
-  }, 180);
-}
-
-photoCard.addEventListener(
-  "click",
-  swapPhoto
-);
-
-photoCard.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      event.key === "Enter" ||
-      event.key === " "
-    ) {
-
-      event.preventDefault();
-      swapPhoto();
-
-    }
-
-  }
-);
-
-
-/* =========================
-   SURPRISE SONG
-========================= */
-
 const surpriseSong =
   document.getElementById(
     "surpriseSong"
