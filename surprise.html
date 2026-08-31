@@ -2,317 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-
 <title>Surprise ❤️</title>
-
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body {
-  width: 100%;
-  min-height: 100%;
-}
-
-body {
-  min-height: 100dvh;
-
-  overflow: hidden;
-
-  background: #ffffff;
-
-  font-family:
-    "Quicksand",
-    Arial,
-    sans-serif;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding:
-    max(16px, env(safe-area-inset-top))
-    max(16px, env(safe-area-inset-right))
-    max(16px, env(safe-area-inset-bottom))
-    max(16px, env(safe-area-inset-left));
-}
-
-.surprise-page {
-  width: min(92vw, 650px);
-
-  min-height:
-    calc(100dvh - 32px);
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-}
-
-.surprise-image {
-  display: block;
-
-  width: min(88vw, 520px);
-
-  max-width: 100%;
-  max-height: 68dvh;
-
-  height: auto;
-
-  object-fit: contain;
-
-  border-radius: 14px;
-
-  margin-bottom: 22px;
-
-  pointer-events: none;
-  user-select: none;
-}
-
-.surprise-page h1 {
-  color: #ff54a4;
-
-  font-size:
-    clamp(2rem, 8vw, 3.4rem);
-
-  line-height: 1.15;
-
-  margin-bottom: 8px;
-}
-
-.surprise-page p {
-  color: #777777;
-
-  font-size:
-    clamp(.95rem, 4vw, 1.1rem);
-}
-
-.audio-fallback {
-  display: none;
-
-  position: fixed;
-
-  left: 50%;
-  bottom: max(24px, env(safe-area-inset-bottom));
-
-  transform:
-    translateX(-50%);
-
-  z-index: 100;
-
-  border: 0;
-  border-radius: 999px;
-
-  padding: 12px 24px;
-
-  background: #ff54a4;
-  color: #ffffff;
-
-  font-family:
-    "Quicksand",
-    Arial,
-    sans-serif;
-
-  font-weight: 600;
-
-  box-shadow:
-    0 5px 18px rgba(255, 84, 164, .3);
-
-  cursor: pointer;
-}
-
-.audio-fallback.show {
-  display: block;
-}
-
-@media (max-width: 600px) {
-
-  .surprise-image {
-    width: min(88vw, 380px);
-    max-height: 58dvh;
-
-    margin-bottom: 18px;
-  }
-
-}
-
-@media (max-width: 360px) {
-
-  .surprise-image {
-    width: 84vw;
-    max-height: 52dvh;
-  }
-
-  .surprise-page h1 {
-    font-size: 1.75rem;
-  }
-
-}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%}
+body{min-height:100dvh;overflow:hidden;background:#fff;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:16px}
+.page{width:min(92vw,650px);min-height:calc(100dvh - 32px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.scene{width:min(88vw,430px);height:min(72vw,560px);min-height:260px;max-height:62dvh;perspective:1200px;cursor:pointer;touch-action:manipulation;margin-bottom:22px}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .72s cubic-bezier(.2,.75,.25,1)}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;overflow:hidden;border-radius:18px;background:#fff;border:1px solid rgba(255,84,164,.12);box-shadow:0 12px 30px rgba(0,0,0,.10);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
+.back{transform:rotateY(180deg)}
+.hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.94);color:#ff54a4;font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none}
+.flipped .hint{opacity:0}
+h1{color:#ff54a4;font-size:clamp(2rem,8vw,3.4rem);margin-bottom:8px}
+p{color:#777;font-size:clamp(.95rem,4vw,1.1rem)}
+@media(max-width:600px){.scene{width:min(88vw,360px);height:min(112vw,500px);max-height:58dvh}h1{font-size:clamp(1.9rem,9vw,2.7rem)}}
+@media(max-width:360px){.scene{width:84vw;height:108vw;max-height:52dvh}}
+@media(max-height:520px) and (orientation:landscape){.scene{width:240px;height:320px;max-height:62dvh}}
 </style>
 </head>
-
 <body>
-
-<main class="surprise-page">
-
-  <img
-    class="surprise-image"
-    src="./wishes.png"
-    alt="Special anniversary wish">
-
-  <h1>
-    A little surprise ❤️
-  </h1>
-
-  <p>
-    Made with love, just for you.
-  </p>
-
+<main class="page">
+<div class="scene" id="scene" role="button" tabindex="0" aria-label="Tap to flip the photo card">
+<div class="card" id="card">
+<div class="face front"><img src="./wishes.png" alt="Anniversary wish"><span class="hint">Tap to swipe ↔</span></div>
+<div class="face back"><img src="./photo.jpeg" alt="Special photo"></div>
+</div>
+</div>
+<h1>A little surprise ❤️</h1>
+<p>Tap the card to see the other side.</p>
 </main>
 
-
-<audio
-  id="surpriseSong"
-  src="./surpriseSong.mp3"
-  autoplay
-  loop
-  preload="auto">
-</audio>
-
-
-<button
-  id="playSurpriseBtn"
-  class="audio-fallback"
-  type="button">
-  ▶ Play Surprise Song
-</button>
-
+<audio id="surpriseSong" src="./surpriseSong.mp3" autoplay loop preload="auto"></audio>
 
 <script>
-const surpriseSong =
-  document.getElementById(
-    "surpriseSong"
-  );
+const scene=document.getElementById("scene");
+const card=document.getElementById("card");
+const song=document.getElementById("surpriseSong");
 
-const playSurpriseBtn =
-  document.getElementById(
-    "playSurpriseBtn"
-  );
+function flip(){card.classList.toggle("flipped")}
+scene.addEventListener("click",flip);
+scene.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();flip()}});
 
-
-/*
- * Start surpriseSong from 00:00.
- */
-async function startSurpriseSong() {
-
-  try {
-
-    surpriseSong.currentTime =
-      0;
-
-    await surpriseSong.play();
-
-    /*
-     * Autoplay worked.
-     */
-    playSurpriseBtn.classList.remove(
-      "show"
-    );
-
-  } catch (error) {
-
-    /*
-     * IMPORTANT:
-     *
-     * Modern browsers can block audible autoplay
-     * after navigation to a new HTML document.
-     *
-     * In that case, show one clean Play button.
-     */
-    playSurpriseBtn.classList.add(
-      "show"
-    );
-
-    console.warn(
-      "surpriseSong autoplay was blocked:",
-      error
-    );
-
-  }
-
-}
-
-
-/*
- * User fallback if browser blocks autoplay.
- */
-playSurpriseBtn.addEventListener(
-  "click",
-  async () => {
-
-    try {
-
-      await surpriseSong.play();
-
-      playSurpriseBtn.classList.remove(
-        "show"
-      );
-
-    } catch (error) {
-
-      console.warn(
-        "surpriseSong could not play:",
-        error
-      );
-
-    }
-
-  }
-);
-
-
-/*
- * Keep the song looping.
- */
-surpriseSong.addEventListener(
-  "ended",
-  () => {
-
-    surpriseSong.currentTime =
-      0;
-
-    surpriseSong.play().catch(() => {
-
-      playSurpriseBtn.classList.add(
-        "show"
-      );
-
-    });
-
-  }
-);
-
-
-/*
- * Try autoplay immediately.
- */
-startSurpriseSong();
+/* Surprise song starts from 00:00. */
+song.currentTime=0;
+song.play().catch(()=>{});
 </script>
-
 </body>
 </html>
