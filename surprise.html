@@ -46,6 +46,655 @@ body {
     max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom))
     max(16px, env(safe-area-inset-left));
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.surprise-page {
+  width: min(92vw, 650px);
+
+  min-height:
+    calc(100dvh - 32px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   FLIP CARD
+========================================= */
+
+.flip-card {
+  position: relative;
+
+  width: min(88vw, 520px);
+
+  /*
+   * Keeps the card stable while switching
+   * between wishes.png and photo.jpeg.
+   */
+  height: min(68dvh, 700px);
+
+  perspective: 1400px;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+  user-select: none;
+  -webkit-user-select: none;
+
+  outline: none;
+}
+
+
+.flip-card-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  transform-style: preserve-3d;
+
+  transition:
+    transform 0.75s
+    cubic-bezier(.22, .61, .36, 1);
+
+  will-change: transform;
+}
+
+
+/*
+ * When clicked, rotate the complete card.
+ */
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+
+/* =========================================
+   CARD SIDES
+========================================= */
+
+.flip-card-side {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.12);
+
+  transition:
+    box-shadow 0.3s ease;
+}
+
+
+/*
+ * Small interaction feedback.
+ */
+.flip-card:hover .flip-card-side {
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.16);
+}
+
+
+/*
+ * Front = wishes.png
+ */
+.flip-card-front {
+  transform: rotateY(0deg);
+}
+
+
+/*
+ * Back = photo.jpeg
+ */
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+
+/* =========================================
+   IMAGES
+========================================= */
+
+.flip-card-side img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  background: #ffffff;
+
+  pointer-events: none;
+
+  user-select: none;
+  -webkit-user-select: none;
+
+  -webkit-user-drag: none;
+}
+
+
+/* =========================================
+   ACCESSIBILITY FOCUS
+========================================= */
+
+.flip-card:focus-visible {
+  border-radius: 18px;
+
+  box-shadow:
+    0 0 0 4px rgba(255, 84, 164, 0.20);
+}
+
+
+/* =========================================
+   HINT
+========================================= */
+
+.flip-hint {
+  margin-top: 16px;
+
+  color: #777777;
+
+  font-size:
+    clamp(.9rem, 3.5vw, 1rem);
+
+  line-height: 1.4;
+
+  transition:
+    opacity 0.3s ease;
+}
+
+.flip-hint strong {
+  color: #ff54a4;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   AUDIO FALLBACK
+========================================= */
+
+.audio-fallback {
+  display: none;
+
+  position: fixed;
+
+  left: 50%;
+
+  bottom:
+    max(24px, env(safe-area-inset-bottom));
+
+  transform:
+    translateX(-50%);
+
+  z-index: 100;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  padding: 12px 24px;
+
+  background: #ff54a4;
+
+  color: #ffffff;
+
+  font-family:
+    "Quicksand",
+    Arial,
+    sans-serif;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 5px 18px rgba(255, 84, 164, .3);
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+}
+
+.audio-fallback.show {
+  display: block;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .flip-card {
+    width: min(88vw, 380px);
+
+    height: min(64dvh, 600px);
+  }
+
+  .flip-hint {
+    margin-top: 14px;
+
+    font-size: .9rem;
+  }
+
+}
+
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media (max-width: 360px) {
+
+  .flip-card {
+    width: 84vw;
+
+    height: min(58dvh, 520px);
+  }
+
+}
+
+
+/* =========================================
+   LANDSCAPE PHONES
+========================================= */
+
+@media (max-height: 520px) and (orientation: landscape) {
+
+  .flip-card {
+    width: min(52vw, 420px);
+
+    height: 78dvh;
+  }
+
+  .flip-hint {
+    margin-top: 8px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<main class="surprise-page">
+
+  <!--
+    =========================================
+    ANNIVERSARY FLIP CARD
+    =========================================
+
+    FRONT:
+      wishes.png
+
+    BACK:
+      photo.jpeg
+
+    Click / tap either side to flip.
+  -->
+
+  <div
+    class="flip-card"
+    id="flipCard"
+    tabindex="0"
+    role="button"
+    aria-label="Flip anniversary card">
+
+    <div class="flip-card-inner">
+
+      <!-- FRONT: WISHES -->
+      <div class="flip-card-side flip-card-front">
+
+        <img
+          src="./wishes.png"
+          alt="Special anniversary wish">
+
+      </div>
+
+
+      <!-- BACK: PHOTO -->
+      <div class="flip-card-side flip-card-back">
+
+        <img
+          src="./photo.jpeg"
+          alt="Anniversary photo">
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!--
+    Small instruction below the card.
+  -->
+  <p
+    class="flip-hint"
+    id="flipHint">
+
+    <strong>Tap the card</strong>
+    to see the surprise ❤️
+
+  </p>
+
+
+</main>
+
+
+<!-- =========================================
+     SURPRISE SONG
+========================================= -->
+
+<audio
+  id="surpriseSong"
+  src="./surpriseSong.mp3"
+  autoplay
+  loop
+  preload="auto">
+</audio>
+
+
+<!--
+  Shown only when the browser blocks
+  automatic audio playback.
+-->
+<button
+  id="playSurpriseBtn"
+  class="audio-fallback"
+  type="button">
+
+  ▶ Play Surprise Song
+
+</button>
+
+
+<script>
+
+/* =========================================
+   FLIP CARD
+========================================= */
+
+const flipCard =
+  document.getElementById(
+    "flipCard"
+  );
+
+const flipHint =
+  document.getElementById(
+    "flipHint"
+  );
+
+
+/*
+ * Flip the card.
+ *
+ * Every click toggles:
+ *
+ * wishes.png
+ *      ↓
+ * photo.jpeg
+ *
+ * and back again.
+ */
+function flipCardNow() {
+
+  flipCard.classList.toggle(
+    "flipped"
+  );
+
+
+  /*
+   * Update the small instruction
+   * so the interaction feels natural.
+   */
+  if (
+    flipCard.classList.contains(
+      "flipped"
+    )
+  ) {
+
+    flipHint.innerHTML =
+      "<strong>Tap the photo</strong> to see the wish ❤️";
+
+  } else {
+
+    flipHint.innerHTML =
+      "<strong>Tap the card</strong> to see the surprise ❤️";
+
+  }
+
+}
+
+
+/*
+ * Mouse click + mobile tap.
+ */
+flipCard.addEventListener(
+  "click",
+  flipCardNow
+);
+
+
+/*
+ * Keyboard accessibility.
+ *
+ * Enter / Space also flips the card.
+ */
+flipCard.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
+
+      event.preventDefault();
+
+      flipCardNow();
+
+    }
+
+  }
+);
+
+
+/* =========================================
+   SURPRISE SONG
+========================================= */
+
+const surpriseSong =
+  document.getElementById(
+    "surpriseSong"
+  );
+
+const playSurpriseBtn =
+  document.getElementById(
+    "playSurpriseBtn"
+  );
+
+
+/*
+ * Start surpriseSong from 00:00.
+ */
+async function startSurpriseSong() {
+
+  try {
+
+    surpriseSong.currentTime =
+      0;
+
+    await surpriseSong.play();
+
+
+    /*
+     * Autoplay worked.
+     */
+    playSurpriseBtn.classList.remove(
+      "show"
+    );
+
+  } catch (error) {
+
+    /*
+     * Modern browsers may block
+     * audible autoplay.
+     *
+     * Show the fallback button.
+     */
+    playSurpriseBtn.classList.add(
+      "show"
+    );
+
+    console.warn(
+      "surpriseSong autoplay was blocked:",
+      error
+    );
+
+  }
+
+}
+
+
+/*
+ * User fallback if autoplay is blocked.
+ */
+playSurpriseBtn.addEventListener(
+  "click",
+  async function () {
+
+    try {
+
+      await surpriseSong.play();
+
+      playSurpriseBtn.classList.remove(
+        "show"
+      );
+
+    } catch (error) {
+
+      console.warn(
+        "surpriseSong could not play:",
+        error
+      );
+
+    }
+
+  }
+);
+
+
+/*
+ * Keep the song looping.
+ */
+surpriseSong.addEventListener(
+  "ended",
+  function () {
+
+    surpriseSong.currentTime =
+      0;
+
+    surpriseSong
+      .play()
+      .catch(function () {
+
+        playSurpriseBtn.classList.add(
+          "show"
+        );
+
+      });
+
+  }
+);
+
+
+/*
+ * Try autoplay immediately.
+ */
+startSurpriseSong();
+
+</script>
+
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta name="theme-color" content="#ffffff">
+
+<title>Surprise ❤️</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  font-family:
+    "Quicksand",
+    Arial,
+    sans-serif;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
 }
 
 .surprise-page {
@@ -315,4 +964,4 @@ startSurpriseSong();
 </script>
 
 </body>
-</html>
+</html> -->
